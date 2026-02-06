@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market & Customer Intelligence Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+        
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+            min-width: 180px;
+            cursor: pointer;
+        }
+        
+        .nace-level-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nace-level-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .nace-level-group input[type="radio"] {
+            cursor: pointer;
+        }
+        
+        /* Section Container */
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.6em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-subvalue {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .column {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .column-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .column-title.growing {
+            color: #10b981;
+        }
+        
+        .column-title.declining {
+            color: #ef4444;
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #f9fafb;
+        }
+        
+        th {
+            padding: 10px;
+            text-align: left;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        th.text-right {
+            text-align: right;
+        }
+        
+        td {
+            padding: 12px 10px;
+            font-size: 0.9em;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-green {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .text-red {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .text-gray {
+            color: #6b7280;
+        }
+        
+        /* Distribution Bar */
+        .distribution-bar {
+            display: flex;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .distribution-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .distribution-segment:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        
+        .segment-growing {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .segment-stable {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+        
+        .segment-declining {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .distribution-legend {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* Industry Table */
+        .industry-table {
+            margin-top: 20px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-growing {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-declining {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-stable {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-risk {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .alert-opportunity {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        
+        /* Customer Health Section */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .health-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .health-card.growing {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .health-card.stable {
+            border-color: #6b7280;
+            background: #f9fafb;
+        }
+        
+        .health-card.declining {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .health-card.unknown {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .health-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .health-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .health-value {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .health-value.growing-color {
+            color: #10b981;
+        }
+        
+        .health-value.stable-color {
+            color: #6b7280;
+        }
+        
+        .health-value.declining-color {
+            color: #ef4444;
+        }
+        
+        .health-value.unknown-color {
+            color: #f59e0b;
+        }
+        
+        .health-percentage {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .health-action {
+            font-size: 0.8em;
+            color: #888;
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        /* Customer Tables */
+        .customer-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .customer-table-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .table-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .table-header h3 {
+            font-size: 1.2em;
+            color: #333;
+        }
+        
+        .font-mono {
+            font-family: 'Courier New', monospace;
+        }
+        
+        .asset-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        
+        .asset-value {
+            color: #111827;
+            font-weight: 500;
+        }
+        
+        .asset-change {
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .table-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.85em;
+            color: #6b7280;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .chart-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        canvas {
+            max-height: 400px;
+        }
+        
+        /* Detailed Analysis Panel */
+        .detailed-panel {
+            display: none;
+            margin-top: 20px;
+            padding: 25px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+        
+        .detailed-panel.active {
+            display: block;
+        }
+        
+        .panel-header {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-panel {
+            margin-left: auto;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .close-panel:hover {
+            background: #dc2626;
+        }
+        
+        .panel-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .panel-stat {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .panel-stat-label {
+            font-size: 0.8em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .panel-stat-value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .panel-stat-sub {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .data-coverage {
+            background: #fffbeb;
+            border: 1px solid #fbbf24;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        .data-coverage strong {
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Market & Customer Intelligence Dashboard</h1>
+            <p><strong>Business Unit:</strong> DineroDK | <strong>Country:</strong> Denmark | <strong>Last Updated:</strong> January 21, 2026</p>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label>Country:</label>
+                <select id="countryFilter">
+                    <option value="DK">Denmark</option>
+                    <option value="NO">Norway</option>
+                    <option value="SE">Sweden</option>
+                    <option value="FI">Finland</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Industry:</label>
+                <select id="industryFilter">
+                    <option value="ALL">All Industries</option>
+                    <option value="A">A - Agriculture, forestry and fishing</option>
+                    <option value="C">C - Manufacturing</option>
+                    <option value="F">F - Construction</option>
+                    <option value="G">G - Wholesale and retail trade</option>
+                    <option value="I">I - Accommodation and food service</option>
+                    <option value="J">J - Information and communication</option>
+                    <option value="M">M - Professional, scientific and technical</option>
+                    <option value="62">62 - IT Services</option>
+                    <option value="69">69 - Legal Services</option>
+                    <option value="71">71 - Architecture & Engineering</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>NACE Level:</label>
+                <div class="nace-level-group">
+                    <label>
+                        <input type="radio" name="naceLevel" value="1" checked>
+                        Level 1
+                    </label>
+                    <label>
+                        <input type="radio" name="naceLevel" value="2">
+                        Level 2
+                    </label>
+                    <label>
+                        <input type="radio" name="naceLevel" value="3">
+                        Level 3
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECTION 1: MARKET HEALTH -->
+        <div class="section">
+            <h2 class="section-title">1. Market Health</h2>
+            
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-label">📊 Total Market</div>
+                    <div class="stat-value">851,109</div>
+                    <div class="stat-subvalue">Active companies</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📈 New Companies (2024)</div>
+                    <div class="stat-value">78,450</div>
+                    <div class="stat-subvalue">9.2% formation rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📉 Closed (2024)</div>
+                    <div class="stat-value">68,340</div>
+                    <div class="stat-subvalue">8.0% closure rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📊 Net Change</div>
+                    <div class="stat-value">+10,110</div>
+                    <div class="stat-subvalue">+1.2% growth</div>
+                </div>
+            </div>
+            
+            <!-- Two Column Layout -->
+            <div class="two-column">
+                <!-- Growing Markets -->
+                <div class="column">
+                    <h3 class="column-title growing">🟢 Top 10 Growing Markets</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>NACE</th>
+                                <th>Industry</th>
+                                <th class="text-right">Growth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="showDetailedAnalysis('62')">
+                                <td class="font-mono">62</td>
+                                <td>IT Services</td>
+                                <td class="text-right text-green">+11.2%</td>
+                            </tr>
+                            <tr onclick="showDetailedAnalysis('63')">
+                                <td class="font-mono">63</td>
+                                <td>Information Services</td>
+                                <td class="text-right text-green">+10.1%</td>
+                            </tr>
+                            <tr onclick="showDetailedAnalysis('69')">
+                                <td class="font-mono">69</td>
+                                <td>Legal Services</td>
+                                <td class="text-right text-green">+8.4%</td>
+                            </tr>
+                            <tr onclick="showDetailedAnalysis('71')">
+                                <td class="font-mono">71</td>
+                                <td>Architecture & Engineering</td>
+                                <td class="text-right text-green">+7.2%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">70</td>
+                                <td>Management Consulting</td>
+                                <td class="text-right text-green">+6.8%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">72</td>
+                                <td>R&D</td>
+                                <td class="text-right text-green">+6.1%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">74</td>
+                                <td>Professional Services</td>
+                                <td class="text-right text-green">+5.9%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">73</td>
+                                <td>Advertising</td>
+                                <td class="text-right text-green">+5.2%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">82</td>
+                                <td>Admin Services</td>
+                                <td class="text-right text-green">+4.8%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">86</td>
+                                <td>Healthcare</td>
+                                <td class="text-right text-green">+4.1%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="font-size: 0.85em; color: #888; margin-top: 10px; font-style: italic;">
+                        Click any row for detailed analysis
+                    </div>
+                </div>
+                
+                <!-- Declining Markets -->
+                <div class="column">
+                    <h3 class="column-title declining">🔴 Top 10 Declining Markets</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>NACE</th>
+                                <th>Industry</th>
+                                <th class="text-right">Decline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="showDetailedAnalysis('47')">
+                                <td class="font-mono">47</td>
+                                <td>Retail Trade</td>
+                                <td class="text-right text-red">-4.8%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">56</td>
+                                <td>Food Service</td>
+                                <td class="text-right text-red">-3.2%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">55</td>
+                                <td>Accommodation</td>
+                                <td class="text-right text-red">-2.9%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">95</td>
+                                <td>Repair Services</td>
+                                <td class="text-right text-red">-2.1%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">49</td>
+                                <td>Land Transport</td>
+                                <td class="text-right text-red">-1.8%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">52</td>
+                                <td>Warehousing</td>
+                                <td class="text-right text-red">-1.5%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">79</td>
+                                <td>Travel Agencies</td>
+                                <td class="text-right text-red">-1.2%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">18</td>
+                                <td>Printing</td>
+                                <td class="text-right text-red">-0.9%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">96</td>
+                                <td>Personal Services</td>
+                                <td class="text-right text-red">-0.7%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">53</td>
+                                <td>Postal Services</td>
+                                <td class="text-right text-red">-0.4%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="font-size: 0.85em; color: #888; margin-top: 10px; font-style: italic;">
+                        Click any row for detailed analysis
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECTION 2: OUR MARKET EXPOSURE -->
+        <div class="section">
+            <h2 class="section-title">2. Our Market Exposure</h2>
+            
+            <!-- Distribution Bar -->
+            <div>
+                <h3 style="margin-bottom: 15px; color: #333;">Customer Distribution by Market Health</h3>
+                <div class="distribution-bar">
+                    <div class="distribution-segment segment-growing" style="width: 58.2%;">
+                        4,920 customers (58.2%)
+                    </div>
+                    <div class="distribution-segment segment-declining" style="width: 23.4%;">
+                        1,980 (23.4%)
+                    </div>
+                    <div class="distribution-segment segment-stable" style="width: 18.4%;">
+                        1,550 (18.4%)
+                    </div>
+                </div>
+                <div class="distribution-legend">
+                    <div>🟢 <strong>Growing Markets:</strong> 4,920 customers (58.2%)</div>
+                    <div>🔴 <strong>Declining Markets:</strong> 1,980 customers (23.4%)</div>
+                    <div>🟡 <strong>Stable Markets:</strong> 1,550 customers (18.4%)</div>
+                </div>
+            </div>
+            
+            <!-- Alerts -->
+            <div class="alert alert-opportunity">
+                <span style="font-size: 1.5em;">💡</span>
+                <div><strong>OPPORTUNITY:</strong> 58.2% of our customers are in growing markets</div>
+            </div>
+            <div class="alert alert-risk">
+                <span style="font-size: 1.5em;">⚠️</span>
+                <div><strong>RISK:</strong> 23.4% of our customers are in declining markets - consider diversification</div>
+            </div>
+            
+            <!-- Top Industries Table -->
+            <div class="industry-table">
+                <h3 style="margin-bottom: 15px; color: #333;">Top 10 Industries by Customer Count</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Industry (NACE)</th>
+                            <th class="text-right">Customers</th>
+                            <th class="text-right">% of Total</th>
+                            <th>Market Health</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr onclick="showDetailedAnalysis('47')">
+                            <td>1</td>
+                            <td>47 - Retail Trade</td>
+                            <td class="text-right">1,245</td>
+                            <td class="text-right">14.7%</td>
+                            <td><span class="status-badge status-declining">🔴 Declining -4.8%</span></td>
+                        </tr>
+                        <tr onclick="showDetailedAnalysis('69')">
+                            <td>2</td>
+                            <td>69 - Legal Services</td>
+                            <td class="text-right">987</td>
+                            <td class="text-right">11.7%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +8.4%</span></td>
+                        </tr>
+                        <tr onclick="showDetailedAnalysis('62')">
+                            <td>3</td>
+                            <td>62 - IT Services</td>
+                            <td class="text-right">845</td>
+                            <td class="text-right">10.0%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +11.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>43 - Construction</td>
+                            <td class="text-right">756</td>
+                            <td class="text-right">8.9%</td>
+                            <td><span class="status-badge status-stable">🟡 Stable +0.5%</span></td>
+                        </tr>
+                        <tr onclick="showDetailedAnalysis('71')">
+                            <td>5</td>
+                            <td>71 - Architecture & Engineering</td>
+                            <td class="text-right">689</td>
+                            <td class="text-right">8.1%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +7.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>86 - Healthcare</td>
+                            <td class="text-right">534</td>
+                            <td class="text-right">6.3%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +4.1%</span></td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>56 - Food Service</td>
+                            <td class="text-right">478</td>
+                            <td class="text-right">5.7%</td>
+                            <td><span class="status-badge status-declining">🔴 Declining -3.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>73 - Advertising</td>
+                            <td class="text-right">412</td>
+                            <td class="text-right">4.9%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +5.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>70 - Management Consulting</td>
+                            <td class="text-right">387</td>
+                            <td class="text-right">4.6%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +6.8%</span></td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>82 - Admin Services</td>
+                            <td class="text-right">345</td>
+                            <td class="text-right">4.1%</td>
+                            <td><span class="status-badge status-growing">🟢 Growing +4.8%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 6px; font-size: 0.9em;">
+                    <strong>Customer Concentration:</strong> Top 3 industries = 3,077 customers (36.4%)<br>
+                    <span style="color: #ef4444;"><strong>⚠️ Risk Alert:</strong> #1 industry (Retail) is declining with 1,245 customers (14.7%)</span>
+                </div>
+            </div>
+            
+            <!-- Market Share Bubble Chart -->
+            <div class="chart-container">
+                <h3 class="chart-title">Where Do We Have High Market Share?</h3>
+                <canvas id="marketShareChart"></canvas>
+                <div style="margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 6px; font-size: 0.85em;">
+                    <div style="display: flex; gap: 30px; justify-content: center;">
+                        <div>🟢 <strong>Good Position:</strong> High share + Growing market</div>
+                        <div>🔴 <strong>Risk Position:</strong> High share + Declining market</div>
+                        <div>🟡 <strong>Opportunity:</strong> Low share + Growing market</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECTION 3: OUR CUSTOMER HEALTH -->
+        <div class="section">
+            <h2 class="section-title">3. Our Customer Health</h2>
+            
+            <div style="background: #fffbeb; border: 1px solid #fbbf24; border-radius: 8px; padding: 15px; margin-bottom: 25px; font-size: 0.9em;">
+                <strong>ℹ️ Data Coverage:</strong> 8,450 of 11,850 customers (71.3%) have classifiable data. 
+                3,400 customers (28.7%) lack financial/employee data for health classification.
+            </div>
+            
+            <!-- Health Cards -->
+            <div class="health-grid">
+                <div class="health-card growing">
+                    <div class="health-icon">🚀</div>
+                    <div class="health-title">Growing</div>
+                    <div class="health-value growing-color">4,200</div>
+                    <div class="health-percentage">49.7% of classifiable</div>
+                    <div class="health-action">Action: Upsell campaigns</div>
+                </div>
+                
+                <div class="health-card stable">
+                    <div class="health-icon">➡️</div>
+                    <div class="health-title">Stable</div>
+                    <div class="health-value stable-color">1,850</div>
+                    <div class="health-percentage">21.9% of classifiable</div>
+                    <div class="health-action">Action: Maintain engagement</div>
+                </div>
+                
+                <div class="health-card declining">
+                    <div class="health-icon">↘️</div>
+                    <div class="health-title">Declining</div>
+                    <div class="health-value declining-color">2,400</div>
+                    <div class="health-percentage">28.4% of classifiable</div>
+                    <div class="health-action">Action: Retention focus</div>
+                </div>
+                
+                <div class="health-card unknown">
+                    <div class="health-icon">❓</div>
+                    <div class="health-title">Unknown</div>
+                    <div class="health-value unknown-color">3,400</div>
+                    <div class="health-percentage">28.7% of total</div>
+                    <div class="health-action">Action: Monitor - insufficient data</div>
+                </div>
+            </div>
+            
+            <!-- Customer Tables -->
+            <div class="customer-tables">
+                <!-- Expansion Targets -->
+                <div class="customer-table-container">
+                    <div class="table-header">
+                        <span style="font-size: 1.5em;">🚀</span>
+                        <h3>Top 50 Expansion Targets</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>OrgNo</th>
+                                <th>Company</th>
+                                <th class="text-right">3Y Asset Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-mono">42624535</td>
+                                <td style="font-weight: 500;">Nordic Tech Solutions</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">24.5M DKK</span>
+                                        <span class="asset-change text-green">+260%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">38073095</td>
+                                <td style="font-weight: 500;">Copenhagen Digital Hub</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">18.2M DKK</span>
+                                        <span class="asset-change text-green">+178%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">44558831</td>
+                                <td style="font-weight: 500;">Scandinavian Consulting</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">15.8M DKK</span>
+                                        <span class="asset-change text-green">+165%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">31245678</td>
+                                <td style="font-weight: 500;">Dansk Innovation Partners</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">12.3M DKK</span>
+                                        <span class="asset-change text-green">+98%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">29384756</td>
+                                <td style="font-weight: 500;">Aarhus Software House</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">22.1M DKK</span>
+                                        <span class="asset-change text-green">+235%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">41928374</td>
+                                <td style="font-weight: 500;">Øresund Business Solutions</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">9.7M DKK</span>
+                                        <span class="asset-change text-green">+87%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">36547281</td>
+                                <td style="font-weight: 500;">Jutland Engineering</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">16.9M DKK</span>
+                                        <span class="asset-change text-green">+142%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">44217893</td>
+                                <td style="font-weight: 500;">Bornholm Design Studio</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">7.4M DKK</span>
+                                        <span class="asset-change text-green">+76%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">33891245</td>
+                                <td style="font-weight: 500;">Roskilde Tech Ventures</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">28.3M DKK</span>
+                                        <span class="asset-change text-green">+298%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">40157263</td>
+                                <td style="font-weight: 500;">Odense Innovation Lab</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">8.1M DKK</span>
+                                        <span class="asset-change text-green">+69%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="table-footer">
+                        Showing 10 of 50 high-growth customers • Sorted by growth score
+                    </div>
+                </div>
+                
+                <!-- Churn Risks -->
+                <div class="customer-table-container">
+                    <div class="table-header">
+                        <span style="font-size: 1.5em;">🚨</span>
+                        <h3>Top 50 Churn Risks</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>OrgNo</th>
+                                <th>Company</th>
+                                <th class="text-right">3Y Asset Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-mono">26476402</td>
+                                <td style="font-weight: 500;">Vintage Retail Solutions</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">3.2M DKK</span>
+                                        <span class="asset-change text-red">-48%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">19283746</td>
+                                <td style="font-weight: 500;">Legacy Systems A/S</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">5.1M DKK</span>
+                                        <span class="asset-change text-red">-62%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">33547821</td>
+                                <td style="font-weight: 500;">Traditional Services</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">2.8M DKK</span>
+                                        <span class="asset-change text-red">-41%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">28193654</td>
+                                <td style="font-weight: 500;">Old Town Consulting</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">1.9M DKK</span>
+                                        <span class="asset-change text-red">-71%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">35729184</td>
+                                <td style="font-weight: 500;">Classic Business Partners</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">4.3M DKK</span>
+                                        <span class="asset-change text-red">-58%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">24816573</td>
+                                <td style="font-weight: 500;">Sunset Industries</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">3.7M DKK</span>
+                                        <span class="asset-change text-red">-52%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">31458927</td>
+                                <td style="font-weight: 500;">Declining Ventures</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">2.5M DKK</span>
+                                        <span class="asset-change text-red">-38%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">27839461</td>
+                                <td style="font-weight: 500;">Struggling Solutions</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">3.9M DKK</span>
+                                        <span class="asset-change text-red">-65%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">36924718</td>
+                                <td style="font-weight: 500;">Fading Tech Services</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">2.1M DKK</span>
+                                        <span class="asset-change text-red">-44%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">29517384</td>
+                                <td style="font-weight: 500;">Downturn Business</td>
+                                <td class="text-right">
+                                    <div class="asset-cell">
+                                        <span class="asset-value">5.7M DKK</span>
+                                        <span class="asset-change text-red">-78%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="table-footer">
+                        Showing 10 of 50 high-risk customers • Sorted by risk score
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECTION 4: DETAILED ANALYSIS (Hidden by default, shown when clicking industry) -->
+        <div class="section">
+            <h2 class="section-title">4. Detailed Industry Analysis</h2>
+            <div style="text-align: center; color: #888; padding: 40px;">
+                Click on any industry from the tables above to see detailed analysis
+            </div>
+            
+            <div id="detailedPanel" class="detailed-panel">
+                <div class="panel-header">
+                    📊 DETAILED ANALYSIS: <span id="industryName">NACE 71 - Architectural & Engineering Services</span>
+                    <button class="close-panel" onclick="closeDetailedAnalysis()">✕ Close</button>
+                </div>
+                
+                <!-- Market Overview -->
+                <h4 style="margin: 20px 0 15px 0; color: #667eea;">Market Overview</h4>
+                <div class="panel-stats">
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Total Market</div>
+                        <div class="panel-stat-value">15,161</div>
+                        <div class="panel-stat-sub">companies</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">New (2024)</div>
+                        <div class="panel-stat-value">1,396</div>
+                        <div class="panel-stat-sub">9.2% formation</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Closed (2024)</div>
+                        <div class="panel-stat-value">1,220</div>
+                        <div class="panel-stat-sub">8.1% closure</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Net Change</div>
+                        <div class="panel-stat-value">+176</div>
+                        <div class="panel-stat-sub">+1.2% growth</div>
+                    </div>
+                </div>
+                
+                <!-- Our Position -->
+                <h4 style="margin: 20px 0 15px 0; color: #667eea;">Our Position</h4>
+                <div class="panel-stats">
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Our Customers</div>
+                        <div class="panel-stat-value">847</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Market Share</div>
+                        <div class="panel-stat-value">5.59%</div>
+                    </div>
+                </div>
+                
+                <!-- Trends Chart -->
+                <h4 style="margin: 20px 0 15px 0; color: #667eea;">3-Year Trends</h4>
+                <div class="chart-container" style="margin-top: 0;">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+                
+                <!-- Key Metrics -->
+                <h4 style="margin: 20px 0 15px 0; color: #667eea;">Key Metrics (Where Available)</h4>
+                <div class="panel-stats">
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Avg Assets</div>
+                        <div class="panel-stat-value">€13.3M</div>
+                        <div class="panel-stat-sub">where reported</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Avg Equity Ratio</div>
+                        <div class="panel-stat-value">29.5%</div>
+                        <div class="panel-stat-sub">where reported</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Avg Profit</div>
+                        <div class="panel-stat-value">€0.79M</div>
+                        <div class="panel-stat-sub">where reported</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-label">Data Coverage</div>
+                        <div class="panel-stat-value">43.1%</div>
+                        <div class="panel-stat-sub">365 of 847 customers</div>
+                    </div>
+                </div>
+                
+                <!-- Data Limitation Note -->
+                <div class="data-coverage">
+                    <strong>⚠️ Data Limitation:</strong> Only 365 of 847 customers (43.1%) have financial data available for detailed metrics calculation.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Market Share Bubble Chart
+        const ctx1 = document.getElementById('marketShareChart').getContext('2d');
+        const marketShareChart = new Chart(ctx1, {
+            type: 'bubble',
+            data: {
+                datasets: [
+                    {
+                        label: 'Legal Services (69)',
+                        data: [{x: 8.4, y: 12.3, r: 25}],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'IT Services (62)',
+                        data: [{x: 11.2, y: 7.8, r: 22}],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Retail Trade (47)',
+                        data: [{x: -4.8, y: 8.1, r: 30}],
+                        backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Architecture (71)',
+                        data: [{x: 7.2, y: 5.9, r: 20}],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Construction (43)',
+                        data: [{x: 0.5, y: 4.2, r: 19}],
+                        backgroundColor: 'rgba(107, 114, 128, 0.6)',
+                        borderColor: 'rgba(107, 114, 128, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Healthcare (86)',
+                        data: [{x: 4.1, y: 3.8, r: 16}],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Food Service (56)',
+                        data: [{x: -3.2, y: 2.9, r: 15}],
+                        backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                return [
+                                    label,
+                                    `Market Growth: ${context.parsed.x}%`,
+                                    `Our Market Share: ${context.parsed.y}%`,
+                                    `Bubble size represents customer count`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Market Growth Rate (%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        min: -6,
+                        max: 12
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Our Market Share (%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        min: 0,
+                        max: 15
+                    }
+                }
+            }
+        });
+        
+        // Function to show detailed analysis
+        function showDetailedAnalysis(naceCode) {
+            const panel = document.getElementById('detailedPanel');
+            const industryName = document.getElementById('industryName');
+            
+            // Map NACE codes to names
+            const industryMap = {
+                '62': 'NACE 62 - IT Services',
+                '63': 'NACE 63 - Information Services',
+                '69': 'NACE 69 - Legal Services',
+                '71': 'NACE 71 - Architectural & Engineering Services',
+                '47': 'NACE 47 - Retail Trade'
+            };
+            
+            industryName.textContent = industryMap[naceCode] || `NACE ${naceCode}`;
+            panel.classList.add('active');
+            
+            // Scroll to panel
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Update trends chart with sample data
+            updateTrendsChart();
+        }
+        
+        // Function to close detailed analysis
+        function closeDetailedAnalysis() {
+            const panel = document.getElementById('detailedPanel');
+            panel.classList.remove('active');
+        }
+        
+        // Trends Chart
+        let trendsChart = null;
+        function updateTrendsChart() {
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            
+            if (trendsChart) {
+                trendsChart.destroy();
+            }
+            
+            trendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2022', '2023', '2024'],
+                    datasets: [
+                        {
+                            label: 'Market Size',
+                            data: [14852, 14947, 15161],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            yAxisID: 'y',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            pointRadius: 6
+                        },
+                        {
+                            label: 'Our Customers',
+                            data: [783, 812, 847],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            yAxisID: 'y1',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            pointRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Market Size (companies)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Our Customers'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
