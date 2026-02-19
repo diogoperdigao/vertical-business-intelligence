@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visma Data Intelligence — Strategic Vision 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lato:wght@300;400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0a0908;--cream:#f0ebe3;--dim:#a09888;--rule:rgba(255,255,255,0.08);
+  --gold:#c9a84c;--green:#4a9968;--blue:#3a72c0;--teal:#1a9898;
+  --orange:#c8560a;--pink:#b54a7a;--purple:#7040c0;--red:#b02828;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--cream);font-family:'Lato',sans-serif}
+
+/* GRAIN */
+body::before{content:'';position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.3;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
+
+/* LOGO */
+.logo{position:fixed;top:28px;left:36px;z-index:500;font-family:'Playfair Display',serif;
+  font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+
+/* PROGRESS */
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:600;transition:width .4s ease;width:0%}
+
+/* KEY HINT */
+.keyhint{position:fixed;top:28px;right:36px;z-index:500;font-size:10px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.2);display:flex;align-items:center;gap:6px}
+.key{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border:1px solid rgba(255,255,255,.15);border-radius:3px;font-size:10px}
+
+/* NAV */
+.nav{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);z-index:500;
+  display:flex;align-items:center;gap:16px;padding:10px 20px;
+  background:#f0ebe3;backdrop-filter:none;
+  border:1px solid rgba(240,235,227,0.3);border-radius:100px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.nav button{background:none;border:none;cursor:pointer;padding:4px 8px;color:#6a5c4a;
+  font-size:16px;transition:color .2s;font-family:inherit}
+.nav button:hover{color:#0a0908}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(10,9,8,.2);cursor:pointer;
+  border:none;transition:background .3s,transform .3s;padding:0}
+.dot.on{background:#0a0908;transform:scale(1.5)}
+.nav-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6a5c4a;min-width:56px;text-align:center}
+
+/* SLIDES */
+#deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;opacity:0;pointer-events:none;
+  transition:opacity .55s ease,transform .55s cubic-bezier(.16,1,.3,1);transform:translateY(20px)}
+.slide.on{opacity:1;pointer-events:all;transform:translateY(0)}
+.slide.out{opacity:0;transform:translateY(-20px);pointer-events:none}
+
+/* ── SLIDE 1: HERO ── */
+#s1{display:flex;flex-direction:column;justify-content:center;padding:0 10vw;
+  background:radial-gradient(ellipse at 20% 50%,rgba(201,168,76,.04) 0%,transparent 60%)}
+.bg-word{position:absolute;right:-2vw;top:50%;transform:translateY(-50%);
+  font-family:'Playfair Display',serif;font-size:22vw;font-weight:900;line-height:1;
+  color:rgba(255,255,255,.015);pointer-events:none;letter-spacing:-8px;user-select:none}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:'';width:32px;height:1px;background:var(--gold)}
+.hero-h1{font-family:'Playfair Display',serif;font-size:clamp(52px,7vw,108px);font-weight:900;
+  line-height:.95;letter-spacing:-3px;max-width:860px;margin-bottom:36px}
+.hero-h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:16px;font-weight:300;color:var(--dim);max-width:500px;line-height:1.8;margin-bottom:52px}
+.stats{display:flex;gap:44px}
+.stat{border-top:1px solid var(--rule);padding-top:14px}
+.stat-n{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;line-height:1}
+.stat-l{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-top:4px}
+.cta-btn{position:absolute;bottom:96px;right:10vw;background:none;border:none;cursor:pointer;
+  font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--dim);display:flex;align-items:center;gap:8px;transition:color .2s}
+.cta-btn:hover{color:var(--gold)}
+.cta-btn::after{content:'→';font-size:15px}
+
+/* ── SLIDE 2: PATHS ── */
+#s2{display:flex;flex-direction:row}
+.path-or{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;
+  background:var(--ink);border:1px solid rgba(255,255,255,.12);border-radius:50%;
+  width:50px;height:50px;display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--dim)}
+.half{flex:1;display:flex;flex-direction:column;justify-content:center;padding:80px 6vw;position:relative;overflow:hidden;transition:flex .4s ease}
+.half:hover{flex:1.05}
+.left-half{border-right:1px solid var(--rule);background:radial-gradient(ellipse at 30% 60%,rgba(74,153,104,.06) 0%,transparent 60%)}
+.right-half{background:radial-gradient(ellipse at 70% 40%,rgba(74,122,192,.06) 0%,transparent 60%)}
+.path-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:3px;
+  margin-bottom:28px;display:flex;align-items:center;gap:10px}
+.left-half .path-num{color:var(--green)}
+.right-half .path-num{color:var(--blue)}
+.path-num::before{content:'';flex:0 0 22px;height:1px}
+.left-half .path-num::before{background:var(--green)}
+.right-half .path-num::before{background:var(--blue)}
+.path-h{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,50px);font-weight:700;
+  line-height:1.1;margin-bottom:22px;letter-spacing:-1px}
+.path-p{font-size:13px;font-weight:300;color:var(--dim);line-height:1.8;max-width:360px;margin-bottom:32px}
+.pills{display:flex;flex-direction:column;gap:9px}
+.pill{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;
+  padding:9px 14px;border-radius:5px;border:1px solid}
+.left-half .pill{background:rgba(74,153,104,.08);border-color:rgba(74,153,104,.2);color:#8dcfaa}
+.right-half .pill{background:rgba(74,122,192,.08);border-color:rgba(74,122,192,.2);color:#8aaad8}
+.pill-ico{font-size:15px;flex-shrink:0}
+.path-bg{position:absolute;right:-20px;bottom:-20px;font-size:160px;opacity:.03;pointer-events:none;user-select:none}
+
+/* ── SLIDE 3: BRIDGE ── */
+#s3{display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:0 8vw;
+  background:radial-gradient(ellipse at 50% 50%,rgba(201,168,76,.05) 0%,transparent 60%)}
+.bridge-h{font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,70px);font-weight:900;
+  line-height:1;letter-spacing:-2px;margin-bottom:18px}
+.bridge-h em{font-style:italic;color:var(--gold)}
+.bridge-p{font-size:15px;font-weight:300;color:var(--dim);max-width:540px;margin:0 auto 56px;line-height:1.7}
+.counters{display:flex;border:1px solid var(--rule);border-radius:10px;overflow:hidden;max-width:740px;width:100%}
+.counter{flex:1;padding:30px 16px;text-align:center;border-right:1px solid var(--rule)}
+.counter:last-child{border-right:none}
+.cnt-n{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1}
+.cnt-n span{color:var(--gold)}
+.cnt-l{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-top:6px}
+
+/* ── SLIDE 4: BUSINESS IMPACT ── */
+#s4{padding:44px 5vw 110px;overflow-y:auto;display:flex;flex-direction:column}
+.impact-h{font-family:'Playfair Display',serif;font-size:clamp(28px,3.8vw,52px);font-weight:900;
+  line-height:1.05;letter-spacing:-1.5px;margin-bottom:10px}
+.impact-h em{font-style:italic;color:var(--gold)}
+.impact-p{font-size:13px;font-weight:300;color:var(--dim);max-width:520px;line-height:1.7;margin-bottom:36px}
+.igrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:1200px;margin:0 auto;width:100%}
+.icard{border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:22px;
+  display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.icard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ic1::before{background:var(--green)}
+.ic2::before{background:var(--red)}
+.ic3::before{background:var(--teal)}
+.ic4::before{background:var(--gold)}
+.ic1{border-color:rgba(74,153,104,.2);background:rgba(74,153,104,.03)}
+.ic2{border-color:rgba(176,40,40,.2);background:rgba(176,40,40,.03)}
+.ic3{border-color:rgba(26,152,152,.2);background:rgba(26,152,152,.03)}
+.ic4{border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.03)}
+.ic-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--dim)}
+.ic-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;border:1px solid;margin-bottom:2px}
+.ic1 .ic-badge{background:rgba(74,153,104,.15);border-color:rgba(74,153,104,.3);color:#8dcfaa}
+.ic2 .ic-badge{background:rgba(176,40,40,.15);border-color:rgba(176,40,40,.3);color:#e08080}
+.ic3 .ic-badge{background:rgba(26,152,152,.15);border-color:rgba(26,152,152,.3);color:#60cccc}
+.ic4 .ic-badge{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.3);color:var(--gold)}
+.ic-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.2}
+.ic-desc{font-size:12px;font-weight:300;color:var(--dim);line-height:1.65}
+.ic-how{padding:10px 12px;border-radius:5px;background:rgba(255,255,255,.04)}
+.ic-how-t{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.ic-how-p{font-size:11px;color:#8a8a9a;line-height:1.6}
+.ic-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.ic-met{text-align:center;padding:9px 5px;border-radius:5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.ic-met-n{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;line-height:1}
+.ic1 .ic-met-n{color:var(--green)}
+.ic2 .ic-met-n{color:#d04040}
+.ic3 .ic-met-n{color:var(--teal)}
+.ic4 .ic-met-n{color:var(--gold)}
+.ic-met-l{font-size:9px;color:var(--dim);line-height:1.4;margin-top:3px}
+.ic-calc{display:flex;flex-direction:column;gap:3px;padding:9px 12px;border-radius:5px;background:rgba(255,255,255,.05)}
+.ic-calc-l{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+.ic-calc-v{font-size:11px;color:var(--cream);font-family:'DM Mono',monospace}
+.ic-calc-v strong{color:var(--gold)}
+.ic-trend{font-size:11px;color:#6a6a7a;line-height:1.6;font-style:italic}
+
+/* ── SLIDE 5: STAKEHOLDERS ── */
+#s5{padding:60px 6vw 110px;overflow-y:auto}
+.sh-header{text-align:center;margin-bottom:44px}
+.sh-title{font-family:'Playfair Display',serif;font-size:clamp(30px,4vw,58px);font-weight:900;
+  line-height:1.05;letter-spacing:-1.5px;margin-bottom:12px}
+.sh-sub{font-size:14px;font-weight:300;color:var(--dim);max-width:440px;margin:0 auto;line-height:1.7}
+.sh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1200px;margin:0 auto}
+.sh-card{border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:24px 20px 20px;
+  cursor:pointer;transition:transform .3s,box-shadow .3s,border-color .3s;
+  background:rgba(255,255,255,.02);display:flex;flex-direction:column;gap:10px;
+  text-align:left;position:relative;overflow:hidden;width:100%;font-family:inherit}
+.sh-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity .3s;border-radius:10px 10px 0 0}
+.sh-card:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.sh-card:hover::before{opacity:1}
+.sh-ico{font-size:26px;line-height:1}
+.sh-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;line-height:1.2;color:var(--cream)}
+.sh-desc{font-size:11px;font-weight:300;color:var(--dim);line-height:1.6;flex:1}
+.sh-arr{font-size:17px;align-self:flex-end;color:var(--dim);transition:transform .2s,color .2s}
+.sh-card:hover .sh-arr{transform:translateX(4px)}
+
+.c0::before{background:var(--gold)} .c0:hover{border-color:rgba(201,168,76,.3)} .c0:hover .sh-name{color:var(--gold)} .c0:hover .sh-arr{color:var(--gold)}
+.c1::before{background:var(--green)} .c1:hover{border-color:rgba(74,153,104,.3)} .c1:hover .sh-name{color:var(--green)} .c1:hover .sh-arr{color:var(--green)}
+.c2::before{background:var(--blue)} .c2:hover{border-color:rgba(58,114,192,.3)} .c2:hover .sh-name{color:var(--blue)} .c2:hover .sh-arr{color:var(--blue)}
+.c3::before{background:var(--teal)} .c3:hover{border-color:rgba(26,152,152,.3)} .c3:hover .sh-name{color:var(--teal)} .c3:hover .sh-arr{color:var(--teal)}
+.c4::before{background:var(--orange)} .c4:hover{border-color:rgba(200,86,10,.3)} .c4:hover .sh-name{color:var(--orange)} .c4:hover .sh-arr{color:var(--orange)}
+.c5::before{background:var(--pink)} .c5:hover{border-color:rgba(181,74,122,.3)} .c5:hover .sh-name{color:var(--pink)} .c5:hover .sh-arr{color:var(--pink)}
+.c6::before{background:var(--purple)} .c6:hover{border-color:rgba(112,64,192,.3)} .c6:hover .sh-name{color:var(--purple)} .c6:hover .sh-arr{color:var(--purple)}
+.c7::before{background:var(--red)} .c7:hover{border-color:rgba(176,40,40,.3)} .c7:hover .sh-name{color:var(--red)} .c7:hover .sh-arr{color:var(--red)}
+
+/* ── SLIDE 6: PUNCHLINE ── */
+#s6{display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:0 8vw;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 50%,rgba(201,168,76,.05) 0%,transparent 65%)}
+.punch-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Playfair Display',serif;font-size:28vw;font-weight:900;line-height:1;
+  color:rgba(255,255,255,.015);pointer-events:none;letter-spacing:-12px;user-select:none;white-space:nowrap}
+.punch-rule{width:48px;height:1px;background:var(--gold);margin:0 auto 28px}
+.punch-eyebrow{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:40px}
+.punch-statement{font-family:'Playfair Display',serif;
+  font-size:clamp(28px,4.2vw,62px);font-weight:900;
+  line-height:1.12;letter-spacing:-2px;
+  max-width:900px;margin:0 auto 36px}
+.punch-statement em{font-style:italic;color:var(--gold)}
+.punch-divider{width:1px;height:48px;background:linear-gradient(to bottom,transparent,rgba(201,168,76,.4),transparent);
+  margin:0 auto 36px}
+.punch-sub{font-size:16px;font-weight:300;color:var(--dim);
+  max-width:620px;margin:0 auto 52px;line-height:1.8}
+.punch-tag{display:inline-flex;align-items:center;gap:12px;
+  font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(201,168,76,.6);border:1px solid rgba(201,168,76,.2);
+  padding:10px 24px;border-radius:100px}
+
+/* ── DETAIL OVERLAY ── */
+#detail{position:fixed;inset:0;z-index:800;overflow-y:auto;
+  opacity:0;pointer-events:none;transform:translateX(36px);
+  transition:opacity .4s ease,transform .4s cubic-bezier(.16,1,.3,1)}
+#detail.on{opacity:1;pointer-events:all;transform:translateX(0)}
+.detail-wrap{min-height:100vh;padding:0 8vw 80px}
+.detail-top{padding:36px 0 40px;display:flex;align-items:flex-start;gap:32px;
+  border-bottom:1px solid var(--rule);margin-bottom:44px}
+.back-btn{background:none;border:1px solid var(--rule);color:var(--dim);
+  padding:8px 14px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;
+  flex-shrink:0;margin-top:4px;font-family:inherit}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+.d-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.d-title{font-family:'Playfair Display',serif;font-size:clamp(26px,4vw,52px);font-weight:700;
+  line-height:1.05;letter-spacing:-1px;margin-bottom:12px}
+.d-obj{font-size:13px;font-weight:300;color:var(--dim);max-width:620px;line-height:1.7}
+.q-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-bottom:6px}
+.q-list{display:flex;flex-direction:column}
+.q-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule);padding:24px 0;
+  transition:background .2s}
+.q-row:hover{background:rgba(255,255,255,.02);margin:0 -32px;padding:24px 32px;border-radius:4px;border-bottom-color:transparent}
+.q-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--dim);
+  display:block;margin-bottom:8px}
+.q-q{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.3;
+  padding-right:32px;border-right:1px solid var(--rule)}
+.q-right{padding-left:32px;display:flex;flex-direction:column;gap:8px}
+.q-ans-l{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:2px}
+.q-ans{font-size:12px;font-weight:300;color:var(--dim);line-height:1.7}
+.q-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.q-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;border:1px solid;
+  font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="logo">Visma · Data Intelligence</div>
+<div id="progress"></div>
+<div class="keyhint"><span class="key">&#8592;</span><span class="key">&#8594;</span> Navigate</div>
+
+<div id="deck">
+
+<!-- ══ S1: HERO ══ -->
+<div class="slide on" id="s1">
+  <div class="bg-word">DATA</div>
+  <div class="eyebrow">Visma Group &middot; Strategic Vision 2026</div>
+  <h1 class="hero-h1">One dataset.<br><em>Infinite</em> clarity.</h1>
+  <p class="hero-sub">We sit on 500M+ entities worth of market intelligence across 30 global markets. The question is no longer whether we have the data &mdash; it&rsquo;s how we unlock it for every decision-maker across the Group.</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">500M+</div><div class="stat-l">Entities tracked</div></div>
+    <div class="stat"><div class="stat-n">30+</div><div class="stat-l">Markets globally</div></div>
+    <div class="stat"><div class="stat-n">180+</div><div class="stat-l">Legal Units</div></div>
+    <div class="stat"><div class="stat-n">50+</div><div class="stat-l">Use Cases Covered</div></div>
+  </div>
+  <button class="cta-btn" onclick="go(1)">See the vision</button>
+</div>
+
+<!-- ══ S2: TWO PATHS ══ -->
+<div class="slide" id="s2">
+  <div class="path-or">AND</div>
+  <div class="half left-half">
+    <div class="path-bg">&#128202;</div>
+    <div class="path-num">Path 01 &middot; Structured Intelligence</div>
+    <h2 class="path-h">The Intelligence<br>Dashboard</h2>
+    <p class="path-p">A curated, three-part analytical suite &mdash; updated quarterly &mdash; that any stakeholder can open and immediately read. Market Observatory. Customer Health. Portfolio Synergy. No query skills required.</p>
+    <div class="pills">
+      <div class="pill"><span class="pill-ico">&#128197;</span> Updated every quarter with fresh registry data</div>
+      <div class="pill"><span class="pill-ico">&#128065;</span> Always-on, visual, executive-readable</div>
+      <div class="pill"><span class="pill-ico">&#127919;</span> Pre-built for the highest-impact use cases</div>
+      <div class="pill"><span class="pill-ico">&#128269;</span> Filterable by Country, Industry, Legal Unit</div>
+    </div>
+  </div>
+  <div class="half right-half">
+    <div class="path-bg">&#129302;</div>
+    <div class="path-num">Path 02 &middot; Conversational Intelligence</div>
+    <h2 class="path-h">The Data<br>Agent</h2>
+    <p class="path-p">Raw, enriched company data exposed at the top of our Visma Data Lake &mdash; queryable by any user via natural language. Ask anything. Get structured answers in seconds. No SQL required.</p>
+    <div class="pills">
+      <div class="pill"><span class="pill-ico">&#128172;</span> &ldquo;Which DK accounting firms with &gt;10 staff are we missing?&rdquo;</div>
+      <div class="pill"><span class="pill-ico">&#9889;</span> Real-time answers from the full 500M+ entity universe</div>
+      <div class="pill"><span class="pill-ico">&#128275;</span> Self-service for analysts, sales, and product teams</div>
+      <div class="pill"><span class="pill-ico">&#129504;</span> LLM layer over the same enriched registry data</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S3: BRIDGE ══ -->
+<div class="slide" id="s3">
+  <div class="eyebrow" style="justify-content:center">The Opportunity at Scale</div>
+  <h2 class="bridge-h">One dataset.<br><em>Every</em> answer.</h2>
+  <p class="bridge-p">The same market registry data &mdash; enriched, structured, and cross-referenced &mdash; can answer fundamentally different questions depending on who is asking. The power is in the breadth of coverage.</p>
+  <div class="counters">
+    <div class="counter"><div class="cnt-n">500<span>M+</span></div><div class="cnt-l">Entities tracked</div></div>
+    <div class="counter"><div class="cnt-n">8<span> roles</span></div><div class="cnt-l">Stakeholder profiles</div></div>
+    <div class="counter"><div class="cnt-n">50<span>+</span></div><div class="cnt-l">Use cases covered</div></div>
+  </div>
+</div>
+
+<!-- ══ S4: BUSINESS IMPACT ══ -->
+<div class="slide" id="s4">
+  <div style="text-align:center;margin-bottom:32px">
+    <div class="eyebrow" style="justify-content:center">Quantified Business Impact</div>
+    <h2 class="impact-h">Four programmes.<br><em>Measurable</em> outcomes.</h2>
+    <p class="impact-p" style="margin:0 auto 32px">The same data deployed four ways addresses the defining growth levers of B2B SaaS in 2026: expansion revenue, portfolio protection, upsell, and first-mover acquisition.</p>
+  </div>
+  <div class="igrid">
+
+    <div class="icard ic1">
+      <div class="ic-num">01</div>
+      <div class="ic-badge">Expansion Revenue</div>
+      <div class="ic-title">Partner Expansion Programme</div>
+      <div class="ic-desc">Map which Legal Units serve customers with complementary needs &mdash; ERP + Payroll, Accounting + HR &mdash; and build structured referral agreements between them. Each LU becomes a distribution channel for its siblings. Multi-product customers are sticky; single-product customers churn.</div>
+      <div class="ic-how"><div class="ic-how-t">How the data enables it</div><div class="ic-how-p">Cross-reference all 180+ LU customer lists by registration number &rarr; identify shared customers &rarr; rank untapped referral pools by fit score &rarr; produce a partnership priority matrix per LU pair.</div></div>
+      <div class="ic-metrics">
+        <div class="ic-met"><div class="ic-met-n">18,470</div><div class="ic-met-l">Warm referral candidates &mdash; one LU alone</div></div>
+        <div class="ic-met"><div class="ic-met-n">5&ndash;8%</div><div class="ic-met-l">Warm referral conversion (B2B SaaS Europe)</div></div>
+        <div class="ic-met"><div class="ic-met-n">4&times;</div><div class="ic-met-l">Lower churn for multi-product vs. single-product</div></div>
+      </div>
+      <div class="ic-calc"><div class="ic-calc-l">Illustrative ARR Unlock (one LU)</div><div class="ic-calc-v">18,470 &times; 6% &times; &euro;2,400 avg ACV &asymp; <strong>&euro;2.7M incremental ARR</strong></div></div>
+      <div class="ic-trend">&#128200; 2026 SaaS trend: Net Revenue Retention has replaced new logo growth as the primary valuation driver. Best-in-class B2B SaaS NRR = 115&ndash;130%. Partner programmes are the fastest path there.</div>
+    </div>
+
+    <div class="icard ic2">
+      <div class="ic-num">02</div>
+      <div class="ic-badge">Portfolio Risk</div>
+      <div class="ic-title">Market Overexposure Detection &amp; Diversification</div>
+      <div class="ic-desc">Identify when an LU or the Group portfolio is dangerously concentrated in a contracting vertical &mdash; where declining formation rates, rising bankruptcy rates, and falling equity ratios converge. Diversify proactively before sector deterioration hits ARR. Know before it costs you.</div>
+      <div class="ic-how"><div class="ic-how-t">How the data enables it</div><div class="ic-how-p">Cross-reference each LU&rsquo;s ARR by sector against sector-level bankruptcy rate, equity ratio trend, and formation rate &rarr; compute concentration score &rarr; flag LUs with &gt;30% ARR in declining markets &rarr; trigger diversification review.</div></div>
+      <div class="ic-metrics">
+        <div class="ic-met"><div class="ic-met-n">18%</div><div class="ic-met-l">Portfolio ARR in Retail &mdash; a low-health, declining sector</div></div>
+        <div class="ic-met"><div class="ic-met-n">2.4%</div><div class="ic-met-l">Hospitality bankruptcy rate &mdash; highest in portfolio</div></div>
+        <div class="ic-met"><div class="ic-met-n">6&ndash;12m</div><div class="ic-met-l">Lead time before public data confirms the downturn</div></div>
+      </div>
+      <div class="ic-calc"><div class="ic-calc-l">Portfolio Action</div><div class="ic-calc-v">Retail 18% + Hospitality 8% ARR in declining sectors &rarr; <strong>redirect acquisition to Prof. Services &amp; IT/Tech</strong></div></div>
+      <div class="ic-trend">&#9888;&#65039; 2026 SaaS trend: Revenue quality matters more than volume. Investors apply lower multiples to ARR concentrated in high-churn, high-bankruptcy industries. Portfolio diversification is a valuation lever.</div>
+    </div>
+
+    <div class="icard ic3">
+      <div class="ic-num">03</div>
+      <div class="ic-badge">Upsell Revenue</div>
+      <div class="ic-title">KYC-Driven Upsell: Growing Customers on Wrong Plans</div>
+      <div class="ic-desc">Identify existing customers on entry-level or mid-tier plans who are externally signalling growth &mdash; hiring employees, expanding assets, crossing equity thresholds &mdash; but have not yet upgraded. These are not prospects to acquire. They are revenue sitting inside our existing customer base.</div>
+      <div class="ic-how"><div class="ic-how-t">How the data enables it</div><div class="ic-how-p">Monitor all 142,380 customers quarterly for growth signals: headcount crosses tier threshold, asset value exceeds size-class boundary, revenue growth &gt;20% YoY, new subsidiaries added &rarr; tag as &ldquo;plan-mismatched&rdquo; &rarr; surface to account manager with upgrade action.</div></div>
+      <div class="ic-metrics">
+        <div class="ic-met"><div class="ic-met-n">8,210</div><div class="ic-met-l">Customers with active upsell growth signals now</div></div>
+        <div class="ic-met"><div class="ic-met-n">5.8%</div><div class="ic-met-l">Of monitored customers &mdash; concentrated upsell queue</div></div>
+        <div class="ic-met"><div class="ic-met-n">+30&ndash;60%</div><div class="ic-met-l">ACV uplift from Micro&rarr;Small or Small&rarr;Medium upgrade</div></div>
+      </div>
+      <div class="ic-calc"><div class="ic-calc-l">Illustrative Expansion ARR (20% conversion)</div><div class="ic-calc-v">8,210 &times; 20% &times; &euro;900 avg uplift &asymp; <strong>&euro;1.5M expansion ARR</strong> &mdash; zero new logos needed</div></div>
+      <div class="ic-trend">&#128202; 2026 SaaS trend: Expansion ARR is the most capital-efficient growth lever. CAC for an upsell is 70&ndash;80% lower than new logo. Best-in-class companies generate 30&ndash;40% of ARR growth from within their existing base.</div>
+    </div>
+
+    <div class="icard ic4">
+      <div class="ic-num">04</div>
+      <div class="ic-badge">New Logo Growth</div>
+      <div class="ic-title">Formation-Triggered First-Mover Acquisition</div>
+      <div class="ic-desc">Monitor new company registrations daily across 30 markets. Within 7 days of formation &mdash; before any competitor &mdash; trigger personalised outreach to companies matching our ICP. Companies acquired in year one have 40% higher LTV: no incumbent to displace, habits form early, pricing anchors set at a blank slate.</div>
+      <div class="ic-how"><div class="ic-how-t">How the data enables it</div><div class="ic-how-p">Daily formation feed filtered by NACE + size + geography &rarr; auto-match to LU ICP &rarr; trigger CRM sequence within 7 days &rarr; track formation-cohort conversion rates to optimise ICP criteria over time.</div></div>
+      <div class="ic-metrics">
+        <div class="ic-met"><div class="ic-met-n">187K</div><div class="ic-met-l">New formations per year across core markets</div></div>
+        <div class="ic-met"><div class="ic-met-n">7 days</div><div class="ic-met-l">Target outreach window post-registration</div></div>
+        <div class="ic-met"><div class="ic-met-n">+40%</div><div class="ic-met-l">Higher LTV for customers acquired in year 1</div></div>
+      </div>
+      <div class="ic-calc"><div class="ic-calc-l">Illustrative ARR (1% ICP-matched formations convert)</div><div class="ic-calc-v">187K &times; 30% ICP match &times; 1% &times; &euro;2,400 ACV &asymp; <strong>&euro;1.3M new ARR annually</strong></div></div>
+      <div class="ic-trend">&#128640; 2026 SaaS trend: Platform stickiness compounds. Every formation-cohort customer acquired at day 7 is a customer who never experienced a competitor &mdash; and whose team learns workflows on Visma by default.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ S5: STAKEHOLDERS ══ -->
+<div class="slide" id="s5">
+  <div class="sh-header">
+    <div class="eyebrow" style="justify-content:center">Stakeholder Intelligence Map</div>
+    <h2 class="sh-title">Choose who you are.</h2>
+    <p class="sh-sub">Click your role to see which questions this data platform answers specifically for you.</p>
+  </div>
+  <div class="sh-grid">
+    <button class="sh-card c0" onclick="showDetail(0)"><div class="sh-ico">&#127963;&#65039;</div><div class="sh-name">Board &amp; Top Management</div><div class="sh-desc">Strategic market position, portfolio health at a glance, macro signals for Board reporting.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c1" onclick="showDetail(1)"><div class="sh-ico">&#128208;</div><div class="sh-name">Segment / BA Directors</div><div class="sh-desc">Vertical market size, competitor whitespace, sector health, ICP alignment for their domain.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c2" onclick="showDetail(2)"><div class="sh-ico">&#128301;</div><div class="sh-name">M&amp;A Team</div><div class="sh-desc">Fast-growing verticals, macroeconomic context for target markets, acquisition whitespace.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c3" onclick="showDetail(3)"><div class="sh-ico">&#128200;</div><div class="sh-name">Growth Managers</div><div class="sh-desc">Cross-sell opportunities, upsell signals, churn prevention, multi-LU retention advantage.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c4" onclick="showDetail(4)"><div class="sh-ico">&#127919;</div><div class="sh-name">Sales Managers</div><div class="sh-desc">Net-new territory prioritisation, warm lead lists, bad debt risk, market sizing per rep.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c5" onclick="showDetail(5)"><div class="sh-ico">&#128225;</div><div class="sh-name">Marketing Managers</div><div class="sh-desc">Audience sizing, campaign targeting, product-market fit proof, ICP validation.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c6" onclick="showDetail(6)"><div class="sh-ico">&#9881;&#65039;</div><div class="sh-name">Data Managers</div><div class="sh-desc">Data infrastructure, GDPR compliance, EU SME classification, cross-LU entity resolution.</div><div class="sh-arr">&rarr;</div></button>
+    <button class="sh-card c7" onclick="showDetail(7)"><div class="sh-ico">&#128737;&#65039;</div><div class="sh-name">Risk &amp; Finance Controllers</div><div class="sh-desc">Bad debt exposure, credit risk signals, payment terms, ARR provisioning, insolvency alerts.</div><div class="sh-arr">&rarr;</div></button>
+  </div>
+</div>
+
+<!-- ══ S6: PUNCHLINE ══ -->
+<div class="slide" id="s6">
+  <div class="punch-bg">DATA</div>
+  <div class="punch-rule"></div>
+  <div class="punch-eyebrow">The Decisive Advantage &middot; 2026</div>
+  <h2 class="punch-statement">
+    Unstructured data exists<br>everywhere. <em>Insights</em> exist<br>almost nowhere.
+  </h2>
+  <div class="punch-divider"></div>
+  <p class="punch-sub">
+    Every company in our markets leaves a digital trail. But raw data without structure, context, and intelligence has zero business impact. The organisations that win in 2026 are not the ones with the most data &mdash; they are the ones who know exactly what to do with it. That is the competitive edge we are building.
+  </p>
+  <div class="punch-tag">Visma Data Intelligence &middot; Turning 500M+ entities into smart growth</div>
+</div>
+
+</div><!-- end deck -->
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="prev()">&#8592;</button>
+  <button class="dot on" onclick="go(0)"></button>
+  <button class="dot" onclick="go(1)"></button>
+  <button class="dot" onclick="go(2)"></button>
+  <button class="dot" onclick="go(3)"></button>
+  <button class="dot" onclick="go(4)"></button>
+  <button class="dot" onclick="go(5)"></button>
+  <span class="nav-label" id="nlabel">Vision</span>
+  <button onclick="next()">&#8594;</button>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail">
+  <div class="detail-wrap" id="detail-content"></div>
+</div>
+
+<!-- ALL STAKEHOLDER DATA IN HTML (no JS string escaping issues) -->
+<div id="sh-data" style="display:none">
+
+<div data-id="0" data-color="#c9a84c" data-label="Board &amp; Top Management">
+  <div data-obj>Strategic market position, total portfolio health, and macro-level signals for Board-level reporting. Reads the dashboard quarterly &mdash; needs the <strong>30-second read</strong>, not operational detail.</div>
+  <div data-q="Are we gaining or losing market share across our core European markets?" data-a="The Penetration Rate KPI (8.4%, +0.6pp YoY) tells you whether you are taking share, and the 5-year Market Share Trend per country shows whether momentum is accelerating or plateauing. If penetration grows faster than the market itself (+2.3%), you are genuinely displacing competitors &mdash; not just riding the tide." data-tags="1A &middot; Penetration Rate KPI|1B &middot; Market Share Trend"></div>
+  <div data-q="Is our customer portfolio a concentration risk &mdash; are we exposed to fragile industries?" data-a="The ARR Exposure Matrix plots every sector by health score (X) against its share of our revenue (Y). Sectors in the red zone &mdash; high ARR, low health &mdash; are your systemic risks. Retail at 18% of ARR with low sector health is the clearest example. The % At Risk KPI (9.4%) quantifies how many accounts are already showing stress signals." data-tags="2E &middot; ARR Exposure Matrix|2A &middot; % At Risk (9.4%)"></div>
+  <div data-q="Is the macroeconomic environment in our core markets improving or deteriorating?" data-a="Aggregate Equity Ratio by Country (&minus;2.1pp YoY) is a leading indicator of credit stress across 4.7M companies &mdash; it appears in our data 6&ndash;12 months before it appears in public statistics. Combined with the Bankruptcy Rate (0.9%, trending up) and Asset Growth Index, this is a proprietary macro barometer no competitor has." data-tags="1A &middot; Market Equity Ratio (&minus;2.1pp)|1D &middot; Equity Ratio by Country|1D &middot; Bankruptcy Rate by Sector"></div>
+  <div data-q="How much of the market remains genuinely uncaptured &mdash; and is it accessible?" data-a="4.7M active companies minus 394K Visma customers = 4.3M non-customers. The Size Distribution chart shows whether that whitespace is concentrated in Micro companies or in Small/Medium. The Penetration Heatmap shows exactly which country &times; sector combinations are most untouched." data-tags="1A &middot; Total Active Companies|1B &middot; Size Distribution|1B &middot; Penetration Heatmap"></div>
+  <div data-q="Can we predict which markets will face economic stress before public indicators surface it?" data-a="By aggregating equity ratio trends, bankruptcy filings, and asset contraction across 500M+ entities in our Visma Data Lake, we can construct a proprietary macro barometer. When equity ratios fall across multiple sectors simultaneously in a country, it historically precedes official recession indicators by two to three quarters. This is not available to any competitor." data-tags="Visma Data Lake &middot; 500M entity aggregate|1D &middot; Equity Ratio Trend + Bankruptcy Rate"></div>
+  <div data-q="Which of our 180+ LUs are exposed to the same sector risks &mdash; is there correlated portfolio risk at Group level?" data-a="By cross-referencing all LU customer lists against sector health data, we can compute Group-level sector concentration. If 30 LUs are simultaneously overexposed to a contracting Retail sector, a single macro event creates correlated churn across the Group &mdash; not isolated LU problems. This is only visible from the Group data layer." data-tags="180+ LU Customer Lists &middot; Cross-referenced|2E &middot; ARR Exposure Matrix &middot; Group aggregate"></div>
+</div>
+
+<div data-id="1" data-color="#4a9968" data-label="Segment / BA Directors">
+  <div data-obj>Defending market share and identifying expansion within a specific vertical (e.g. Accounting, HR, Public Sector). Needs to understand their <strong>total addressable market, competitive position, and customer quality</strong> within their lane.</div>
+  <div data-q="What is the total size of my vertical &mdash; and what percentage have I actually captured?" data-a="Section 1C gives you this directly: total active companies in the selected industry (32,840 for Accounting &amp; Bookkeeping), your penetration rate (24.3%), and the implied non-customer pool. Switch the Industry filter to your vertical for an immediate read." data-tags="1C &middot; Sector KPIs &mdash; total companies &amp; penetration %"></div>
+  <div data-q="Is my vertical growing or contracting &mdash; do I have a structural tailwind or headwind?" data-a="Formation &amp; Closure Trends (1C) shows quarterly formations vs. closures for any selected vertical. If the formation line is rising and the gap between formations and closures is widening, you have a structural tailwind &mdash; more fresh companies entering your addressable market each year. If closures accelerate, consolidation is underway." data-tags="1C &middot; Formation &amp; Closure Trends|1A &middot; Net Formation Rate (filtered)"></div>
+  <div data-q="Are Visma customers in my vertical outperforming their market peers &mdash; and can I prove it?" data-a="The Growth Distribution grouped bar (1C) compares Market Avg vs. Visma Customers across four growth bands. If Visma customers are overrepresented in High Growth (35% vs. 21%), that is a product-market fit proof point you can use with prospects, investors, and internally." data-tags="1C &middot; Growth Distribution &mdash; Market vs. Visma Customers"></div>
+  <div data-q="Which sub-segments or geographies within my vertical have the most whitespace?" data-a="Cross the Penetration Heatmap (1B) with the Bubble Chart. Look for cells in your vertical NACE codes that are low-penetration (pale green on heatmap) but where the bubble is large (significant market size). That intersection is your highest-leverage growth bet &mdash; big market, low competition, proven product." data-tags="1B &middot; Penetration Heatmap (NACE &times; Country)|1B &middot; Penetration Bubble Chart"></div>
+  <div data-q="By name &mdash; who are the top 50 companies in my vertical that I should pursue but am not?" data-a="The Visma Data Lake contains registration numbers, addresses, employee counts, revenue estimates, and NACE codes for every active company. Filtered to your vertical, sorted by size and growth rate, and cross-checked against your existing customer list, this produces a prioritised named prospect list. No list-buying required." data-tags="Visma Data Lake &middot; Company registry + enrichment|Data Agent query: Top 50 [sector] companies not in [LU] customers"></div>
+  <div data-q="How does my customer quality compare to sister LUs in the same software segment?" data-a="By comparing average equity ratio, growth profile, and health score across LUs in related verticals, we can benchmark customer quality. If your Accounting LU customers average 44% equity but a comparable LU in another country averages 52%, either you are serving a structurally weaker market or customer acquisition criteria needs tightening. Only the Group data layer makes this possible." data-tags="2A &middot; Avg Customer Equity Ratio (per LU comparison)|180+ LU customer lists &middot; Cross-LU cohort benchmarking"></div>
+</div>
+
+<div data-id="2" data-color="#3a72c0" data-label="M&amp;A Team">
+  <div data-obj>Identifying, evaluating, and acquiring high-growth software companies. Needs <strong>structural market intelligence</strong> &mdash; where are fast-growing markets, which countries have the best macro backdrop, and where are we inexplicably absent despite market size.</div>
+  <div data-q="Which verticals are forming the most new companies &mdash; where is entrepreneurial momentum accelerating?" data-a="Formation &amp; Closure Trends (1C) filtered by vertical shows quarterly formation velocity. The Bubble Chart Y-axis (YoY growth rate per sector) gives the ranking instantly. High formation velocity means a growing talent pool, expanding SaaS customer base, and upward pressure on software spend &mdash; all positive acquisition thesis inputs." data-tags="1C &middot; Formation &amp; Closure Trends|1B &middot; Bubble Chart Y-axis (YoY growth rate)"></div>
+  <div data-q="Which countries have the strongest company health trends &mdash; where is the macro backdrop most favourable?" data-a="Aggregate Equity Ratio by Country (1D) shows which markets company populations are getting healthier or more fragile over 5 years. A rising equity ratio means more creditworthy companies, better SaaS payment behaviour, and lower post-acquisition churn risk. Cross with Bankruptcy Rate by Sector to confirm the low-risk reading." data-tags="1D &middot; Equity Ratio by Country (5-year trend)|1D &middot; Bankruptcy Rate by Sector"></div>
+  <div data-q="Where do we have near-zero penetration despite a large market &mdash; what incumbent is winning there?" data-a="Large, pale bubbles on the Penetration Bubble Chart (1B) reveal markets where we are nearly absent despite significant company volume. Mapped to the Penetration Heatmap, you can pinpoint the exact country &times; sector cell. That incumbent is likely a local SaaS player &mdash; either a competitor to displace or an acquisition target." data-tags="1B &middot; Penetration Bubble Chart (large, pale = whitespace)|1B &middot; Penetration Heatmap"></div>
+  <div data-q="Which private companies in our target country have 50&ndash;200 employees, growing &gt;20%, in software-adjacent services?" data-a="The Visma Data Lake, queried via the Data Agent, can screen the full company universe by headcount band, revenue growth rate, and NACE code (e.g. 6201 IT consulting, 6202 Systems integration, 6920 Accounting). This produces a shortlist of acquisition candidates in minutes &mdash; replacing weeks of analyst research." data-tags="Visma Data Lake &middot; Data Agent query (headcount + growth + NACE)|Target NACE: 6201, 6202, 6209, 6920"></div>
+  <div data-q="What is the realistic SaaS market size in a country we have never operated in?" data-a="Total active company count by size class, formation rate, sector mix, and average financial health in any country gives a bottom-up TAM estimate. Multiply micro-company count by estimated average SaaS spend per segment, and you have a validated market sizing model &mdash; built from 500M entities, not a purchased analyst report that may be 3 years old." data-tags="Visma Data Lake &middot; Country-level entity universe|1A&ndash;1D &middot; All metrics filtered to target country"></div>
+  <div data-q="Are we approaching saturation in any existing market that would justify acquiring into an adjacency?" data-a="Market Share Trend (1B) by country shows penetration trajectory. If a country line is flattening &mdash; growth decelerating despite market expansion &mdash; you are approaching the ceiling of organic growth in that geography. That is the trigger signal for an adjacent acquisition to reignite growth." data-tags="1B &middot; Visma Market Share Trend (per country flattening)"></div>
+</div>
+
+<div data-id="3" data-color="#1a9898" data-label="Growth Managers">
+  <div data-obj>Maximising LTV of existing customers through cross-sell, upsell, and churn prevention. The primary users of Parts 2 and 3 of the dashboard. Cares about <strong>which customer to call next, and why</strong>.</div>
+  <div data-q="Which of my current customers have outgrown their plan and need an upgrade conversation today?" data-a="Upsell Opportunity Queue (2D) &mdash; specific named companies with the exact triggering data point: headcount 8&rarr;22 YoY, 3 new subsidiaries added, revenue +65%. Each row has a suggested action (Upgrade Small, Full ERP, Multi-entity). This queue is refresh-driven &mdash; new signals appear each quarter without any manual prospecting." data-tags="2D &middot; Upsell Opportunity Queue (scored table)"></div>
+  <div data-q="Do customers who use multiple Visma products genuinely churn less &mdash; and by how much?" data-a="Shared Customer Profile KPIs (3C) show it directly: 2.1% churn for multi-LU customers vs. 8.4% for single-LU. That is a 4&times; retention advantage. Combined with higher average health (72/100 vs. 61) and faster revenue growth (+18.4% vs. +7.1%), this is the internal business case for every cross-sell programme." data-tags="3C &middot; Churn Rate KPI (2.1% vs 8.4%)|3C &middot; Health &amp; Growth KPIs"></div>
+  <div data-q="Who are the specific companies I can cross-sell to a partner LU &mdash; and who do I call first?" data-a="Warm Referral Candidates (3D) &mdash; a fit-scored table of partner LU customers who match your ICP, ranked by score. Each row shows company name, size, sector, and the LU they are currently at. This is a pre-qualified outbound list requiring no additional enrichment work &mdash; ready to load into CRM." data-tags="3D &middot; Warm Referral Candidates (fit-scored table)"></div>
+  <div data-q="Which customers have added new subsidiaries in the last 90 days &mdash; expansion opportunities we do not know about?" data-a="Ultimate Parent Company and Subsidiary Names are tracked in the Visma Data Lake. A customer showing three new subsidiaries that was a single entity six months ago is an immediate upsell trigger &mdash; each subsidiary likely needs the same software. This is invisible to account managers relying only on CRM data." data-tags="Visma Data Lake &middot; Subsidiary Names + UBO tracking|Data Agent: Customers with new subsidiaries in last 90d"></div>
+  <div data-q="If I run a co-sell programme with a partner LU, how many customers could realistically convert in 12 months?" data-a="Warm Referral Candidates (3D) gives the addressable pool &mdash; 18,470 for PepleNL from all partner LUs. Apply a conservative B2B SaaS warm-referral conversion rate (5&ndash;8%) and a typical SMB SaaS ACV for Northern Europe (&euro;1,800&ndash;&euro;3,200/year), and the 12-month ARR projection for a structured co-sell programme becomes a concrete, budget-defensible number." data-tags="3D &middot; Warm Referral Candidates (18,470 pool)|B2B SaaS benchmark: 5&ndash;8% warm referral conversion rate"></div>
+  <div data-q="Is my portfolio getting healthier or more fragile &mdash; should I be more aggressive on retention this quarter?" data-a="Health Tier Shift Quarterly Trend (2B) &mdash; the trajectory of the At Risk line over 5 quarters. Three consecutive rises means a churn wave is forming and you need to shift resources from upsell to retention. A flat or falling At Risk line means greenlight for growth-mode programmes." data-tags="2B &middot; Health Tier Shift Quarterly Trend|2A &middot; % At Risk KPI (9.4%)"></div>
+</div>
+
+<div data-id="4" data-color="#c8560a" data-label="Sales Managers">
+  <div data-obj>Hitting net-new acquisition targets, optimising territory and pipeline quality, and protecting existing revenue from bad debt. Mix of <strong>offensive prospecting and defensive ARR protection</strong>.</div>
+  <div data-q="Where in the market &mdash; by country and sector &mdash; is there the most untapped potential for new logos?" data-a="Penetration Heatmap (1B) shows penetration % for every country &times; NACE combination. Low-penetration cells in sectors you already have product-market fit for are your highest-priority territory investments. The Bubble Chart cross-references with market size &mdash; do not pursue low-penetration if the market is also tiny." data-tags="1B &middot; Penetration Heatmap (Country &times; NACE)|1B &middot; Penetration Bubble Chart"></div>
+  <div data-q="Which existing customers need immediate account manager intervention &mdash; showing financial collapse signals?" data-a="Customer Risk Alert Queue (2C) &mdash; sorted by severity and ARR at risk. Shows the exact signal (Bankruptcy filed 3 days ago, Equity ratio &lt;10% 2nd year, Revenue &minus;38% YoY), the country, and the ARR on the line. These are the calls to make today." data-tags="2C &middot; Customer Risk Alert Queue|2C &middot; ARR at Risk &mdash; Top Accounts"></div>
+  <div data-q="Build me a list of 200 companies in my target sector, 10&ndash;50 employees, not yet Visma customers." data-a="This is a direct Data Agent query against the Visma Data Lake: filter by country, NACE code, employee band (10&ndash;50), exclude existing Visma customer org numbers, sort by formation recency or growth rate. Output: a named, enriched prospect list with address, registration number, and financial health indicator. Deliverable in under 60 seconds." data-tags="Visma Data Lake &middot; Data Agent self-service query|Output: named prospect list with enrichment fields"></div>
+  <div data-q="Which open pipeline deals involve companies that recently filed court judgments &mdash; should I adjust terms?" data-a="Court Judgments are a tracked signal in the Data Lake. A deal moving toward signature while the prospect has had a court judgment filed in the last 60 days is a material credit risk signal invisible in most CRMs. A real-time alert changes the commercial response before signature, protecting the business from onboarding a credit risk." data-tags="Visma Data Lake &middot; Court Judgments signal|2C &middot; Risk Alert Queue &middot; pre-signature deal alert"></div>
+  <div data-q="What is the average time between company formation and first software purchase in my vertical?" data-a="Cross-referencing company incorporation dates with Visma customer acquisition dates in the same sector reveals time-to-first-SaaS-purchase by vertical. If the median accounting firm buys software 14 months after formation, campaigns timed to months 10&ndash;13 outperform campaigns hitting 3-year-old companies already locked to a competitor." data-tags="Visma Data Lake &middot; Incorporation Date + Customer First-Purchase Date|Proprietary: time-to-first-purchase by NACE vertical"></div>
+  <div data-q="Is the market I am selling into getting more or less receptive to new software spend right now?" data-a="Avg Market Equity Ratio (1A, 42.7%, &minus;2.1pp) is the macro signal. When equity ratios fall, companies have less financial headroom for discretionary spend including new SaaS. A declining ratio means your close rate will be structurally harder. Factor this into your quarterly pipeline multiplier." data-tags="1A &middot; Avg Market Equity Ratio (42.7%, &minus;2.1pp)|1D &middot; Equity Ratio by Country"></div>
+</div>
+
+<div data-id="5" data-color="#b54a7a" data-label="Marketing Managers">
+  <div data-obj>Generating high-intent pipeline, validating product-market fit, and running precisely targeted campaigns. Needs <strong>audience sizing, segment intelligence, and proof points</strong> for positioning and creative.</div>
+  <div data-q="How big is the total audience I can market to &mdash; and how much of it is already ours?" data-a="Simple arithmetic from the dashboard: 4.7M total active companies minus 394K Visma customers = 4.3M non-customers available for acquisition campaigns. Penetration Rate (8.4%) means 91.6% of the market is still reachable. The Size Distribution chart shows whether that audience is dominated by Micro, Small, or Medium companies &mdash; shaping channel and creative strategy." data-tags="1A &middot; Total Active Companies vs. Visma Customers|1A &middot; Penetration Rate (8.4%)|1B &middot; Size Distribution"></div>
+  <div data-q="Can we prove that Visma customers outperform their sector peers &mdash; for use in positioning?" data-a="Two data-backed proof points: First, Visma customers are 14pp more likely to be in High Growth than the market average (35% vs. 21%). Second, Visma customer equity ratio (47.3%) exceeds the market average (42.7%) by 4.6pp. Both are externally verifiable, credible positioning claims." data-tags="1C &middot; Growth Distribution (35% vs 21% High Growth)|2A &middot; Avg Customer Equity Ratio vs 1A Market Average"></div>
+  <div data-q="Which industry should I run our next campaign in &mdash; and how do I prioritise limited budget?" data-a="The Penetration Bubble Chart (1B) is the campaign prioritisation tool. Prioritise: large bubbles (big market) that are pale (low penetration) and high on the Y-axis (growing YoY). These three properties together identify a large, growing, under-served market &mdash; maximum campaign leverage." data-tags="1B &middot; Penetration Bubble Chart (size &times; growth &times; penetration)"></div>
+  <div data-q="Build a lookalike audience from our top 10% best customers &mdash; for LinkedIn or programmatic targeting." data-a="Export firmographic attributes of your top retention/revenue cohort: NACE, size class, employee band, revenue growth range, geographic cluster, formation year. This is the seed audience. The same attributes are present for every non-customer in the registry &mdash; enabling a rule-based lookalike list of thousands of precisely matched companies. Far more accurate than algorithmic lookalikes." data-tags="Visma Data Lake &middot; Top customer firmographic export|Data Agent: Companies matching [ICP attributes] not in customer list"></div>
+  <div data-q="Which 3 sectors across our 30 markets have the highest new company formation rate &mdash; where to launch brand awareness?" data-a="Formation &amp; Closure Trends aggregated across the Data Lake, ranked by quarterly formation growth per sector, surfaces the three verticals with the most new entrants. Brand-new companies have no incumbent, no loyalty, and acute software needs &mdash; the highest-intent top-of-funnel audience available. This intelligence refreshes every quarter." data-tags="1C &middot; Formation &amp; Closure Trends (all markets, all verticals)|1A &middot; New Formations ranked by sector growth rate"></div>
+  <div data-q="Is our win rate higher in high-growth companies vs. stable companies &mdash; should that change our creative strategy?" data-a="Cross-referencing historical acquisition data with the growth profiles of those companies at the time of signing reveals whether Visma wins more in growth-stage or stability-seeking companies. If 70% of won deals came from High Growth companies, your creative should lead with built for scale rather than reduce admin burden. A data-validated positioning shift." data-tags="Visma Data Lake &middot; Acquisition cohort + growth profile at time of win|1C &middot; Growth Distribution &middot; Market vs. Visma Customers"></div>
+</div>
+
+<div data-id="6" data-color="#7040c0" data-label="Data Managers">
+  <div data-obj>Building scalable data infrastructure, ensuring GDPR and regulatory compliance, and creating competitive moats through proprietary data. Cares about <strong>data integrity, coverage, classification consistency, and platform scalability</strong>.</div>
+  <div data-q="Is our EU-compliant SME classification actually working consistently across all countries and LUs?" data-a="Size Distribution chart (1B) shows Micro/Small/Medium breakdown &mdash; if the proportions are internally consistent across countries and match EU statistical norms, the classification engine is functioning. Segment Drift Map (2D) is the dynamic test: the transition volumes (Micro&rarr;Small +3,200) should align with plausible annual growth rates, not statistical artefacts from reclassification bugs." data-tags="1B &middot; Market vs. Visma Size Distribution|2D &middot; Segment Drift Map (tier transition volumes)"></div>
+  <div data-q="Is our data fresh enough to be operationally useful &mdash; or are we acting on stale records?" data-a="The Risk Alert Queue (2C) is the freshness test: Bankruptcy filed 3 days ago means our registry feed is near-real-time for that event type. Dissolution Alerts Last 30d (87 accounts) confirms we are catching status changes within the month. If signals are arriving weeks after the event, that flags a data pipeline latency issue needing engineering attention." data-tags="2C &middot; Risk Alert Queue (3 days ago recency)|2A &middot; Dissolution Alerts Last 30d (87)"></div>
+  <div data-q="How many of our 180+ LU customer lists have records that do not match any entity in the central registry?" data-a="Matching all LU customer lists against the Visma Data Lake by registration number produces a full quality audit: what % of records resolve to a known entity, what % are stale (dissolved companies still listed as active), and what % are outright mismatches. This audit is the baseline for any data quality SLA." data-tags="180+ LU Customer Lists &middot; Registry match audit|Visma Data Lake &middot; Entity resolution coverage check"></div>
+  <div data-q="How many unique companies does Visma actually serve across all 180+ LUs?" data-a="Cross-deduplicating all LU customer lists by registration number gives the true unique company count. The difference between total customer records across all LUs and unique companies is the existing cross-sell penetration baseline &mdash; how many real companies already trust Visma with at least one product." data-tags="180+ LU Customer Lists &middot; Cross-LU deduplication|3A &middot; In &ge;1 Other LU KPI (Group-wide version)"></div>
+  <div data-q="Is the cross-LU entity matching working &mdash; are shared customers genuinely the same company or false positives?" data-a="Overlapping Customers table (3C) matches companies by registration/org number across PepleNL and YukiNL. If the matched records look plausible (same country, consistent company names), entity resolution is sound. Suspicious matches would flag the deduplication logic for review." data-tags="3C &middot; Overlapping Customers Table (matched by Org No.)"></div>
+  <div data-q="Which EU countries require specific data processor agreements before we use company financial data in ML models?" data-a="Part 2 surfaces the highest-sensitivity fields: Credit Score (proprietary), Court Judgments, Trade Payment Behavior. Each may require country-specific Data Processor Agreements under GDPR Article 28. France and Germany have additional national laws on commercial credit data use. Legal must sign off field-by-field before the Data Agent is opened to self-service access." data-tags="Part 2 field chips: Credit Score, Court Judgments, Trade Payment|GDPR Art. 28 &middot; Country-specific DPA requirements"></div>
+</div>
+
+<div data-id="7" data-color="#b02828" data-label="Risk &amp; Finance Controllers">
+  <div data-obj>Managing bad debt, credit exposure, payment terms, and financial compliance across the customer book. Primary day-to-day owners of the risk monitoring workflow. Cares about <strong>which accounts to provision for, and how much</strong>.</div>
+  <div data-q="Which customers have entered formal insolvency &mdash; and what ARR do we need to write off or provision for?" data-a="Customer Risk Alert Queue (2C) &mdash; Bankruptcy filed 3 days ago rows with Critical badge, named company, country, and ARR at risk. ARR at Risk Top Accounts chart shows the ranked revenue exposure by account. Confirmed Bankruptcies TTM (312) gives the portfolio-level provisioning number." data-tags="2C &middot; Risk Alert Queue (Critical rows)|2C &middot; ARR at Risk &mdash; Top Accounts|2A &middot; Confirmed Bankruptcies TTM (312)"></div>
+  <div data-q="What is our total ARR concentration in financially weak sectors &mdash; what is the worst-case write-off scenario?" data-a="ARR Exposure Matrix (2E) plots every sector by health score (X) vs. % of our ARR (Y). The red zone (top-left) is the danger: high ARR in low-health sectors. Retail at 18% ARR with a poor health score is the primary concentration risk. This chart directly feeds a scenario analysis." data-tags="2E &middot; ARR Exposure Matrix (red zone sectors)"></div>
+  <div data-q="Which customers show BOTH payment delays AND declining equity &mdash; the double-signal accounts with the highest default probability?" data-a="Payment delays alone have a high false-positive rate. Equity decline alone is slow-moving. Together &mdash; payment delays rising while equity falls below 15% &mdash; is a compound signal with significantly higher correlation to formal default within 6 months. The Data Agent can query the full customer base for this compound condition and return a named, ARR-ranked list." data-tags="Visma Data Lake &middot; Payment Behavior + Equity Ratio compound filter|2C &middot; Risk Alert Queue (compound signal)"></div>
+  <div data-q="What is the expected bad debt for next quarter &mdash; and how should I adjust our provision?" data-a="Health Tier Shift Trend (2B) shows the quarter-on-quarter migration rate into At Risk. Applying historical default conversion rate to the current count (13,384 accounts) gives a statistically grounded provision estimate. If At Risk grew 1.4pp last quarter and the historical default rate for that tier is 18%, expected bad debt is calculable today." data-tags="2B &middot; Health Tier Shift Quarterly Trend (migration rate)|2A &middot; % At Risk (9.4%, 13,384 accounts) &middot; Default conversion rate model"></div>
+  <div data-q="Are there customers with court judgments filed &mdash; a 6&ndash;18 month predictor of formal insolvency?" data-a="Customer Risk Alert Queue (2C) surfaces court judgment signals explicitly &mdash; Court judgment filed for AB Handel (SE, &euro;9,200 ARR, Medium severity). Court judgments typically precede formal bankruptcy by 6&ndash;18 months, providing a critical intervention window. These accounts should immediately trigger: credit freeze review, payment term renegotiation, and account manager escalation." data-tags="2C &middot; Risk Alert Queue (Court judgment filed signal type)|2C &middot; Risk Signal Type Breakdown"></div>
+  <div data-q="If the Retail sector bankruptcy rate rises from 1.9% to 3.0% &mdash; what is the projected ARR impact?" data-a="ARR Exposure Matrix (2E) shows Retail carries 18% of our ARR. Applying a 3.0% stress-test bankruptcy rate to the Retail customer count, and adjusting for average ARR recovery in European SMB insolvency (10&ndash;20%), gives a scenario-based write-off number. This is the stress test calculation the Board needs before a sector downturn materialises." data-tags="2E &middot; ARR Exposure Matrix (Retail at 18% ARR)|Scenario: bankruptcy rate &times; ARR exposure &times; recovery rate"></div>
+</div>
+
+</div><!-- end sh-data -->
+
+<script>
+var SLIDES = ['s1','s2','s3','s4','s5','s6'];
+var LABELS = ['Vision','Two Paths','The Scale','Impact','Your Role','The Moat'];
+var cur = 0;
+
+function go(n) {
+  n = parseInt(n, 10);
+  if (n === cur) return;
+  var prev = document.getElementById(SLIDES[cur]);
+  prev.classList.add('out');
+  var prevEl = prev;
+  setTimeout(function() { prevEl.classList.remove('on', 'out'); }, 550);
+  cur = n;
+  document.getElementById(SLIDES[cur]).classList.add('on');
+  updateNav();
+}
+function next() { if (cur < SLIDES.length - 1) go(cur + 1); }
+function prev() { if (cur > 0) go(cur - 1); }
+
+function updateNav() {
+  var dots = document.querySelectorAll('.dot');
+  for (var i = 0; i < dots.length; i++) {
+    dots[i].classList.toggle('on', i === cur);
+  }
+  document.getElementById('nlabel').textContent = LABELS[cur];
+  document.getElementById('progress').style.width = (cur / (SLIDES.length - 1) * 100) + '%';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('detail').classList.contains('on')) {
+    if (e.key === 'Escape') hideDetail();
+    return;
+  }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+});
+
+// touch
+var tx = null;
+document.addEventListener('touchstart', function(e) { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', function(e) {
+  if (tx === null) return;
+  var dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 50) { dx > 0 ? next() : prev(); }
+  tx = null;
+});
+
+function showDetail(id) {
+  var container = document.querySelector('#sh-data [data-id="' + id + '"]');
+  if (!container) { alert('No data for id ' + id); return; }
+
+  var color = container.getAttribute('data-color');
+  var label = container.getAttribute('data-label');
+  var objEl = container.querySelector('[data-obj]');
+  var obj = objEl ? objEl.innerHTML : '';
+  var qEls = container.querySelectorAll('[data-q]');
+
+  var rows = '';
+  for (var i = 0; i < qEls.length; i++) {
+    var q = qEls[i].getAttribute('data-q');
+    var a = qEls[i].getAttribute('data-a');
+    var tagsRaw = qEls[i].getAttribute('data-tags') || '';
+    var tagParts = tagsRaw ? tagsRaw.split('|') : [];
+    var tagHTML = '';
+    for (var j = 0; j < tagParts.length; j++) {
+      tagHTML += '<span class="q-tag" style="border-color:' + color + '44;color:' + color + ';background:' + color + '18;">' + tagParts[j] + '</span>';
+    }
+    rows += '<div class="q-row">'
+      + '<div class="q-q"><span class="q-num">Q &middot; 0' + (i + 1) + '</span>' + q + '</div>'
+      + '<div class="q-right"><div class="q-ans-l" style="color:' + color + '">Data Intelligence Answer</div>'
+      + '<div class="q-ans">' + a + '</div>'
+      + '<div class="q-tags">' + tagHTML + '</div></div>'
+      + '</div>';
+  }
+
+  document.getElementById('detail-content').innerHTML =
+    '<div class="detail-top">'
+    + '<button class="back-btn" onclick="hideDetail()">&larr; Back</button>'
+    + '<div><div class="d-eyebrow" style="color:' + color + '">' + label + '</div>'
+    + '<div class="d-title">' + label + '</div>'
+    + '<div class="d-obj">' + obj + '</div></div>'
+    + '</div>'
+    + '<div class="q-label">Questions this data answers for you</div>'
+    + '<div class="q-list">' + rows + '</div>';
+
+  document.getElementById('detail').style.background = 'radial-gradient(ellipse at 10% 20%, ' + color + '12 0%, transparent 50%), #0a0908';
+  document.getElementById('detail').classList.add('on');
+  document.getElementById('detail').scrollTop = 0;
+}
+
+function hideDetail() {
+  document.getElementById('detail').classList.remove('on');
+}
+</script>
+</body>
+</html>
