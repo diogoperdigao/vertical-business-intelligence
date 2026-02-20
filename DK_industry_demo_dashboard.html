@@ -244,22 +244,22 @@ main { max-width:1280px; margin:0 auto; padding:28px 32px 48px; }
       <span class="kpi-delta neutral" id="kv-total-delta">▲ +12.3% net 2020–2024</span>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Peak Formation Year</div>
-      <div class="kpi-value" id="kv-peak">2021</div>
-      <div class="kpi-sub" id="kv-peak-sub">103,884 new companies registered</div>
-      <span class="kpi-delta up" id="kv-peak-delta">▲ Highest in 5-year window</span>
+      <div class="kpi-label">Fastest Growing Sector</div>
+      <div class="kpi-value" id="kv-top-growth" style="font-size:22px;margin-top:4px">—</div>
+      <div class="kpi-sub" id="kv-top-growth-sub">—</div>
+      <span class="kpi-delta up" id="kv-top-growth-delta">—</span>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Sharpest Decline</div>
+      <div class="kpi-value" id="kv-top-decline" style="font-size:22px;margin-top:4px">—</div>
+      <div class="kpi-sub" id="kv-top-decline-sub">—</div>
+      <span class="kpi-delta down" id="kv-top-decline-delta">—</span>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Net Formation Rate</div>
       <div class="kpi-value" id="kv-net">+29%</div>
-      <div class="kpi-sub" id="kv-net-sub">Formations vs closures · 2024</div>
-      <span class="kpi-delta up" id="kv-net-delta">▲ 83,087 formed / 64,249 closed</span>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Largest Sector</div>
-      <div class="kpi-value" id="kv-top" style="font-size:24px;margin-top:4px">Financial</div>
-      <div class="kpi-sub">160,849 active companies</div>
-      <span class="kpi-delta neutral" id="kv-top-delta">→ NACE Section L</span>
+      <div class="kpi-sub" id="kv-net-sub">Net formations vs closures · 2020–2024</div>
+      <span class="kpi-delta up" id="kv-net-delta">▲ 446,531 formed / 329,428 closed</span>
     </div>
   </div>
 
@@ -684,7 +684,7 @@ function buildCharts() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 10.5 } } },
-        tooltip: { callbacks: { label: ctx => `  ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} formations` } }
+        tooltip: { callbacks: { label: ctx => `  ${ctx.dataset.label}: ${ctx.raw}} formations` } }
       },
       scales: {
         x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
@@ -759,7 +759,7 @@ function buildCharts() {
       responsive: true, maintainAspectRatio: false, cutout: '62%',
       plugins: {
         legend: { position: 'right', labels: { boxWidth: 10, padding: 9, font: { size: 10 } } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} active` } }
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}} active` } }
       }
     }
   });
@@ -830,21 +830,51 @@ function refresh() {
     `Showing formations ${sy}–${ey} · Status IN ('Aktiv','NORMAL') · virkmart.dim_company`;
 }
 
+function fmt(n) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 function refreshKPIs(sy, ey) {
-  const forms = activeFormations();
+  const forms  = activeFormations();
   const closes = activeClosures();
-  const peakIdx = forms.indexOf(Math.max(...forms));
-  const peakYear = activeYears()[peakIdx];
-  const lastForm = forms[forms.length-1];
-  const lastClose = closes[closes.length-1];
-  const netPct = ((lastForm - lastClose) / lastClose * 100).toFixed(0);
 
+  const totalForms  = forms.reduce((a,b) => a+b, 0);
+  const totalCloses = closes.reduce((a,b) => a+b, 0);
+  const netPct      = (((totalForms - totalCloses) / totalCloses) * 100).toFixed(0);
+
+  // Rank sectors by formation growth across selected period
+  const ranked = SECTORS.map(s => ({
+    ...s,
+    pct:    formationGrowth(s),
+    fStart: s.formations[startIdx],
+    fEnd:   s.formations[endIdx]
+  })).sort((a,b) => b.pct - a.pct);
+
+  const top    = ranked[0];
+  const bottom = ranked[ranked.length - 1];
+
+  // KPI 1 — active total
+  document.getElementById('kv-total').textContent = '853K';
+  document.getElementById('kv-total-delta').textContent = `▲ +${netPct}% net formations ${sy}–${ey}`;
+
+  // KPI 2 — fastest growing sector
+  document.getElementById('kv-top-growth').textContent = top.short;
+  document.getElementById('kv-top-growth-sub').textContent =
+    `${fmt(top.fStart)} formations in ${sy} → ${fmt(top.fEnd)} in ${ey}`;
+  document.getElementById('kv-top-growth-delta').textContent =
+    `▲ +${top.pct.toFixed(1)}% · NACE ${top.code}`;
+
+  // KPI 3 — sharpest decline
+  document.getElementById('kv-top-decline').textContent = bottom.short;
+  document.getElementById('kv-top-decline-sub').textContent =
+    `${fmt(bottom.fStart)} formations in ${sy} → ${fmt(bottom.fEnd)} in ${ey}`;
+  document.getElementById('kv-top-decline-delta').textContent =
+    `▼ ${bottom.pct.toFixed(1)}% · NACE ${bottom.code}`;
+
+  // KPI 4 — net formation rate
   document.getElementById('kv-net').textContent = `+${netPct}%`;
-  document.getElementById('kv-net-sub').textContent = `Formations vs closures · ${ey}`;
-  document.getElementById('kv-net-delta').textContent = `▲ ${lastForm.toLocaleString()} formed / ${lastClose.toLocaleString()} closed`;
-
-  document.getElementById('kv-peak').textContent = peakYear;
-  document.getElementById('kv-peak-sub').textContent = `${Math.max(...forms).toLocaleString()} new companies registered`;
+  document.getElementById('kv-net-sub').textContent = `Net formations vs closures · ${sy}–${ey}`;
+  document.getElementById('kv-net-delta').textContent = `▲ ${fmt(totalForms)} formed / ${fmt(totalCloses)} closed`;
 }
 
 function refreshTable(sy, ey) {
@@ -862,9 +892,9 @@ function refreshTable(sy, ey) {
       <td style="padding-left:20px;color:var(--ink3);font-size:12px">${i+1}</td>
       <td><div class="sector-name">${s.name}</div></td>
       <td><span class="sector-code">${s.code}</span></td>
-      <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${s.active.toLocaleString()}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink2)">${s.formations[startIdx].toLocaleString()}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink2)">${s.formations[endIdx].toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${s.active}}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink2)">${s.formations[startIdx]}}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink2)">${s.formations[endIdx]}}</td>
       <td>
         <div class="trend-bar-wrap">
           <div class="trend-bar-track">
@@ -915,19 +945,19 @@ function buildDataSummary() {
 
 function buildPrompt(data) {
   const sectorLines = data.sectors.map(s =>
-    `  - ${s.name} (${s.code}): ${s.active.toLocaleString()} currently active | formations ${data.period.split('–')[0]}: ${s.formStart.toLocaleString()} → ${data.period.split('–')[1]}: ${s.formEnd.toLocaleString()} (${s.pct > 0 ? '+' : ''}${s.pct}%)`
+    `  - ${s.name} (${s.code}): ${s.active}} currently active | formations ${data.period.split('–')[0]}: ${s.formStart}} → ${data.period.split('–')[1]}: ${s.formEnd}} (${s.pct > 0 ? '+' : ''}${s.pct}%)`
   ).join('\n');
   const formLines = Object.entries(data.formations).map(([y,v]) =>
-    `  - ${y}: ${v.toLocaleString()} formations / ${data.closures[y].toLocaleString()} closures / net +${(v-data.closures[y]).toLocaleString()}`
+    `  - ${y}: ${v}} formations / ${data.closures[y]}} closures / net +${(v-data.closures[y])}}`
   ).join('\n');
 
   return `You are a senior business analyst at Visma Group — a portfolio of 200+ B2B SaaS companies in Europe focused on ERP, accounting, and payroll for SMEs.
 
-You have just queried the REAL Danish company registry (CVR) from BigQuery. This is not synthetic data — these are actual numbers from ${data.source}, queried on ${data.dataDate}. The database contains ${data.totalRecords.toLocaleString()} total records.
+You have just queried the REAL Danish company registry (CVR) from BigQuery. This is not synthetic data — these are actual numbers from ${data.source}, queried on ${data.dataDate}. The database contains ${data.totalRecords}} total records.
 
 PERIOD ANALYSED: ${data.period}
 COUNTRY: ${data.country}
-TOTAL CURRENTLY ACTIVE COMPANIES: ${data.totalActive.toLocaleString()}
+TOTAL CURRENTLY ACTIVE COMPANIES: ${data.totalActive}}
 
 SECTOR BREAKDOWN — Currently Active + Formation Trend ${data.period}:
 ${sectorLines}
