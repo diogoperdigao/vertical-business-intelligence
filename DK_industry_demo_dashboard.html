@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virkmart · Denmark Industry Trends · BQ Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F4F1EA;
+  --card: #FFFFFF;
+  --ink: #1A1714;
+  --ink2: #5C5650;
+  --ink3: #9E9890;
+  --rule: #E2DDD6;
+  --gold: #C9881A;
+  --gold-pale: #FBF3E0;
+  --green: #1E6B42;
+  --green-pale: #EAF4EE;
+  --red: #9B2020;
+  --red-pale: #FBEAEA;
+  --blue: #1A4A8A;
+  --blue-pale: #EAF0FB;
+  --teal: #1A6878;
+  --teal-pale: #EAF4F7;
+  --radius: 10px;
+}
+*,*::before,*::after { margin:0;padding:0;box-sizing:border-box }
+html { scroll-behavior: smooth }
+body {
+  font-family:'DM Sans',sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--ink);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 58px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.header-flag {
+  font-size: 20px;
+  line-height: 1;
+}
+.header-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+.header-sub {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.bq-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.5);
+}
+.bq-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 6px var(--gold);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── HOW IT WORKS BANNER ── */
+.how-banner {
+  background: var(--blue-pale);
+  border-bottom: 1px solid #C8D8F0;
+  padding: 12px 40px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.how-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.how-text { font-size: 12.5px; color: var(--blue); line-height: 1.6 }
+.how-text strong { font-weight: 600 }
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 1320px; margin: 0 auto; padding: 32px 32px 64px; }
+
+/* ── CONTROLS ── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ctrl-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink2);
+  margin-right: 4px;
+}
+.ctrl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--rule);
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .18s;
+}
+.ctrl-pill:hover, .ctrl-pill.on { background: var(--ink); color: #fff; border-color: var(--ink) }
+.ctrl-pill.on { font-weight: 600 }
+.data-note {
+  font-size: 11px;
+  color: var(--ink3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.data-note::before {
+  content: '◈';
+  color: var(--gold);
+  font-size: 13px;
+}
+
+/* ── KPIs ── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.kpi.gold::before { background: var(--gold) }
+.kpi.green::before { background: var(--green) }
+.kpi.red::before { background: var(--red) }
+.kpi.blue::before { background: var(--blue) }
+.kpi-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-family: 'Instrument Serif', serif;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.kpi-sub { font-size: 12px; color: var(--ink2) }
+.kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+.kpi-delta.up { background: var(--green-pale); color: var(--green) }
+.kpi-delta.down { background: var(--red-pale); color: var(--red) }
+.kpi-delta.neutral { background: var(--gold-pale); color: var(--gold) }
+
+/* ── CHARTS GRID ── */
+.charts-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+.charts-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.charts-full { margin-bottom: 16px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card-header {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 17px;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+  margin-bottom: 3px;
+}
+.card-desc { font-size: 11.5px; color: var(--ink3); max-width: 420px }
+.card-body { padding: 20px 22px }
+.card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tag-line { background: var(--blue-pale); color: var(--blue) }
+.tag-bar { background: var(--green-pale); color: var(--green) }
+.tag-area { background: var(--teal-pale); color: var(--teal) }
+.tag-table { background: var(--gold-pale); color: var(--gold) }
+.chart-wrap { position: relative; height: 260px }
+.chart-wrap.tall { height: 320px }
+.chart-wrap.short { height: 200px }
+
+/* ── SQL TOGGLE ── */
+.sql-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 22px;
+  border-top: 1px solid var(--rule);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  cursor: pointer;
+  background: #FAFAF8;
+  transition: color .15s, background .15s;
+  user-select: none;
+}
+.sql-toggle:hover { color: var(--blue); background: var(--blue-pale) }
+.sql-toggle .arrow { transition: transform .2s; display: inline-block }
+.sql-toggle.open { color: var(--blue) }
+.sql-toggle.open .arrow { transform: rotate(90deg) }
+.sql-panel {
+  display: none;
+  background: #14141C;
+  padding: 20px 24px;
+  border-top: 2px solid var(--blue);
+}
+.sql-panel.open { display: block }
+.sql-meta {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sql-meta::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+pre {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.75;
+  color: #C8DFFF;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.kw { color: #FF9D5C }
+.cm { color: #5A6A80; font-style: italic }
+.fn { color: #7ECAFF }
+.st { color: #A8FF78 }
+.nb { color: #E8B4FF }
+
+/* ── TABLE ── */
+.sector-table { width: 100%; border-collapse: collapse }
+.sector-table th {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+}
+.sector-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: middle;
+}
+.sector-table tr:last-child td { border-bottom: none }
+.sector-table tr:hover td { background: #FAFAF8 }
+.trend-bar-wrap { display: flex; align-items: center; gap: 8px }
+.trend-bar-track { flex: 1; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden }
+.trend-bar-fill { height: 100%; border-radius: 3px; transition: width .6s ease }
+.trend-val { font-size: 12px; font-weight: 600; min-width: 42px; text-align: right }
+.trend-val.up { color: var(--green) }
+.trend-val.down { color: var(--red) }
+.sector-name { font-weight: 500 }
+.sector-code { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3) }
+
+/* ── AI INSIGHTS SECTION ── */
+.insights-section {
+  margin-bottom: 16px;
+}
+.insights-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.insights-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.insights-headline h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+.ai-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 5px var(--gold);
+  animation: pulse 2s infinite;
+}
+.generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s, transform .15s;
+}
+.generate-btn:hover { background: #2a2520; transform: translateY(-1px) }
+.generate-btn:active { transform: translateY(0) }
+.generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none }
+.generate-btn svg { transition: transform .6s }
+.generate-btn.loading svg { animation: spin 1s linear infinite }
+@keyframes spin { to { transform: rotate(360deg) } }
+
+.insights-how {
+  background: var(--gold-pale);
+  border: 1px solid #E8CC90;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #7A5A10;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.insight-card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .4s ease, transform .4s ease;
+}
+.insight-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.insight-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.insight-card.growth::before  { background: var(--green) }
+.insight-card.risk::before    { background: var(--red) }
+.insight-card.oppty::before   { background: var(--blue) }
+.insight-card.market::before  { background: var(--gold) }
+.insight-card.signal::before  { background: var(--teal) }
+
+.insight-type {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.insight-card.growth .insight-type  { color: var(--green) }
+.insight-card.risk .insight-type    { color: var(--red) }
+.insight-card.oppty .insight-type   { color: var(--blue) }
+.insight-card.market .insight-type  { color: var(--gold) }
+.insight-card.signal .insight-type  { color: var(--teal) }
+
+.insight-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.35;
+  min-height: 44px;
+}
+.insight-body {
+  font-size: 12.5px;
+  color: var(--ink2);
+  line-height: 1.65;
+}
+.insight-body .cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: var(--ink);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink .7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.insight-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 100px;
+  margin-top: 12px;
+}
+.insight-card.growth .insight-stat { background: var(--green-pale); color: var(--green) }
+.insight-card.risk .insight-stat   { background: var(--red-pale); color: var(--red) }
+.insight-card.oppty .insight-stat  { background: var(--blue-pale); color: var(--blue) }
+.insight-card.market .insight-stat { background: var(--gold-pale); color: var(--gold) }
+.insight-card.signal .insight-stat { background: var(--teal-pale); color: var(--teal) }
+
+.insights-summary {
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  color: #fff;
+  margin-bottom: 14px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .5s ease .2s, transform .5s ease .2s;
+}
+.insights-summary.visible { opacity: 1; transform: translateY(0) }
+.insights-summary-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.insights-summary-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.88);
+}
+.insights-summary-text .cursor {
+  display: inline-block;
+  width: 2px;
+  height: 18px;
+  background: var(--gold);
+  margin-left: 3px;
+  vertical-align: middle;
+  animation: blink .7s step-end infinite;
+}
+
+.insights-prompt-note {
+  background: #14141C;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+}
+.insights-prompt-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.insights-prompt-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 11.5px;
+  color: #C8DFFF;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--ink);
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-note { font-size: 12px; color: rgba(255,255,255,0.3) }
+.footer-sql-hint { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); opacity: 0.7 }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2,1fr) }
+  .charts-2, .charts-3 { grid-template-columns: 1fr }
+  .main { padding: 20px 16px 48px }
+  .header { padding: 0 20px }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <span class="header-flag">🇩🇰</span>
+    <div>
+      <div class="header-title">Virkmart · Industry Trends</div>
+      <div class="header-sub">Denmark · 2021 — 2024 · BigQuery Demo</div>
+    </div>
+  </div>
+  <div class="bq-badge">
+    <div class="bq-dot"></div>
+    visma-marketing-cloud-master.virkmart
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<div class="how-banner">
+  <div class="how-icon">ℹ️</div>
+  <div class="how-text">
+    <strong>Prototype — How this works:</strong> Every chart below runs on synthetic data that exactly mirrors the <code>virkmart.dim_company</code> schema. Click <strong>↳ View BigQuery SQL</strong> under any chart to see the exact query you would run to replace the mock data with live results. Swapping mock → real takes one API call per chart.
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="controls-left">
+      <span class="ctrl-label">Period</span>
+      <button class="ctrl-pill on" onclick="setPeriod(this, 4)">2021–2024</button>
+      <button class="ctrl-pill" onclick="setPeriod(this, 3)">2022–2024</button>
+      <button class="ctrl-pill" onclick="setPeriod(this, 2)">2023–2024</button>
+    </div>
+    <div class="data-note">Synthetic data · mirrors virkmart schema · Status IN ('Aktiv','NORMAL','Omdannet')</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpis">
+    <div class="kpi gold">
+      <div class="kpi-eyebrow">Active Companies</div>
+      <div class="kpi-value" id="kv-total">852K</div>
+      <div class="kpi-sub">Denmark, end of 2024</div>
+      <div class="kpi-delta neutral">+3.8% vs 2021</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-eyebrow">Fastest Growing Sector</div>
+      <div class="kpi-value" id="kv-top">IT & Tech</div>
+      <div class="kpi-sub">Information & Communication</div>
+      <div class="kpi-delta up">▲ +18.4% (2021→2024)</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-eyebrow">Steepest Decline</div>
+      <div class="kpi-value" id="kv-bot">Hospitality</div>
+      <div class="kpi-sub">Accommodation & Food Services</div>
+      <div class="kpi-delta down">▼ −9.2% (2021→2024)</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-eyebrow">Net Formation Rate</div>
+      <div class="kpi-value">+3.1%</div>
+      <div class="kpi-sub">Formations minus closures TTM</div>
+      <div class="kpi-delta up">▲ Market expanding</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Line + Bar -->
+  <div class="charts-2">
+
+    <!-- LINE CHART -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Active Companies by Sector — Over Time</div>
+          <div class="card-desc">Company count per NACE sector, filtered to active Status values, grouped by year</div>
+        </div>
+        <span class="card-tag tag-line">Line Chart</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap tall">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+      <div class="sql-toggle" onclick="toggleSql(this)">
+        <span class="arrow">▶</span> View BigQuery SQL — Active companies by sector & year
+      </div>
+      <div class="sql-panel">
+        <div class="sql-meta">BigQuery · virkmart.dim_company + custom_dimensions.Danish_DB_NaceCodes</div>
+        <pre><span class="kw">SELECT</span>
+  <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span> c.RegistreringsDato)    <span class="kw">AS</span> year,
+  n.NaceLevel2Name                               <span class="kw">AS</span> sector,
+  <span class="fn">COUNT</span>(<span class="fn">DISTINCT</span> c.cvr)                         <span class="kw">AS</span> company_count
+
+<span class="kw">FROM</span> <span class="st">`visma-marketing-cloud-master.virkmart.dim_company`</span> c
+
+<span class="kw">LEFT JOIN</span> <span class="st">`custom_dimensions.Danish_DB_NaceCodes`</span> n
+  <span class="kw">ON</span> <span class="fn">LEFT</span>(c.Industry, <span class="nb">2</span>) = n.NaceCode2digit
+
+<span class="kw">WHERE</span>
+  c.Status <span class="kw">IN</span> (<span class="st">'Aktiv'</span>, <span class="st">'NORMAL'</span>, <span class="st">'Omdannet'</span>)
+  <span class="kw">AND</span> <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span> c.RegistreringsDato)
+      <span class="kw">BETWEEN</span> <span class="nb">2021</span> <span class="kw">AND</span> <span class="nb">2024</span>
+  <span class="kw">AND</span> n.NaceLevel2Name <span class="kw">IS NOT NULL</span>
+
+<span class="kw">GROUP BY</span> <span class="nb">1</span>, <span class="nb">2</span>
+<span class="kw">ORDER BY</span> year, company_count <span class="kw">DESC</span>
+
+<span class="cm">-- ⚠ Note: RegistreringsDato = registration date of company.
+-- For true yearly snapshots, use a dated extract or snapshot table.
+-- This query approximates cohort by formation year.</span></pre>
+      </div>
+    </div>
+
+    <!-- GROWTH BAR -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Sector Growth / Decline</div>
+          <div class="card-desc">% change in active company count from first to last year of selected period</div>
+        </div>
+        <span class="card-tag tag-bar">Bar Chart</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap tall">
+          <canvas id="growthChart"></canvas>
+        </div>
+      </div>
+      <div class="sql-toggle" onclick="toggleSql(this)">
+        <span class="arrow">▶</span> View BigQuery SQL — Growth rate by sector
+      </div>
+      <div class="sql-panel">
+        <div class="sql-meta">BigQuery · Window function — first/last year comparison</div>
+        <pre><span class="kw">WITH</span> yearly <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    n.NaceLevel2Name          <span class="kw">AS</span> sector,
+    <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span> c.RegistreringsDato) <span class="kw">AS</span> year,
+    <span class="fn">COUNT</span>(<span class="fn">DISTINCT</span> c.cvr)    <span class="kw">AS</span> cnt
+  <span class="kw">FROM</span> <span class="st">`virkmart.dim_company`</span> c
+  <span class="kw">LEFT JOIN</span> <span class="st">`custom_dimensions.Danish_DB_NaceCodes`</span> n
+    <span class="kw">ON</span> <span class="fn">LEFT</span>(c.Industry, <span class="nb">2</span>) = n.NaceCode2digit
+  <span class="kw">WHERE</span> c.Status <span class="kw">IN</span> (<span class="st">'Aktiv'</span>,<span class="st">'NORMAL'</span>,<span class="st">'Omdannet'</span>)
+  <span class="kw">GROUP BY</span> <span class="nb">1</span>, <span class="nb">2</span>
+),
+pivoted <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    sector,
+    <span class="fn">MAX</span>(<span class="kw">IF</span>(year=<span class="nb">2021</span>, cnt, <span class="kw">NULL</span>)) <span class="kw">AS</span> cnt_2021,
+    <span class="fn">MAX</span>(<span class="kw">IF</span>(year=<span class="nb">2024</span>, cnt, <span class="kw">NULL</span>)) <span class="kw">AS</span> cnt_2024
+  <span class="kw">FROM</span> yearly
+  <span class="kw">GROUP BY</span> <span class="nb">1</span>
+)
+<span class="kw">SELECT</span>
+  sector,
+  cnt_2021,
+  cnt_2024,
+  <span class="fn">ROUND</span>((cnt_2024 - cnt_2021) * <span class="nb">100.0</span>
+        / <span class="fn">NULLIF</span>(cnt_2021, <span class="nb">0</span>), <span class="nb">1</span>) <span class="kw">AS</span> growth_pct
+<span class="kw">FROM</span> pivoted
+<span class="kw">ORDER BY</span> growth_pct <span class="kw">DESC</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Area + Formation + Health -->
+  <div class="charts-3">
+
+    <!-- AREA CHART: Formations -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Annual Formations</div>
+          <div class="card-desc">New company registrations per year — top 4 sectors</div>
+        </div>
+        <span class="card-tag tag-area">Area Chart</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap">
+          <canvas id="areaChart"></canvas>
+        </div>
+      </div>
+      <div class="sql-toggle" onclick="toggleSql(this)">
+        <span class="arrow">▶</span> View BigQuery SQL
+      </div>
+      <div class="sql-panel">
+        <div class="sql-meta">BigQuery · New formations by year</div>
+        <pre><span class="kw">SELECT</span>
+  <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span>
+    c.RegistreringsDato)      <span class="kw">AS</span> year,
+  n.NaceLevel2Name            <span class="kw">AS</span> sector,
+  <span class="fn">COUNT</span>(*)                    <span class="kw">AS</span> formations
+
+<span class="kw">FROM</span> <span class="st">`virkmart.dim_company`</span> c
+<span class="kw">LEFT JOIN</span>
+  <span class="st">`custom_dimensions
+  .Danish_DB_NaceCodes`</span> n
+  <span class="kw">ON LEFT</span>(c.Industry,<span class="nb">2</span>)
+     = n.NaceCode2digit
+
+<span class="kw">WHERE</span>
+  <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span>
+    c.RegistreringsDato)
+  <span class="kw">BETWEEN</span> <span class="nb">2021</span> <span class="kw">AND</span> <span class="nb">2024</span>
+
+<span class="kw">GROUP BY</span> <span class="nb">1</span>, <span class="nb">2</span>
+<span class="kw">ORDER BY</span> year, formations <span class="kw">DESC</span></pre>
+      </div>
+    </div>
+
+    <!-- DOUGHNUT: Sector mix -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Sector Composition</div>
+          <div class="card-desc">Share of total active companies by sector, 2024</div>
+        </div>
+        <span class="card-tag tag-line">Doughnut</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap">
+          <canvas id="doughnut"></canvas>
+        </div>
+      </div>
+      <div class="sql-toggle" onclick="toggleSql(this)">
+        <span class="arrow">▶</span> View BigQuery SQL
+      </div>
+      <div class="sql-panel">
+        <div class="sql-meta">BigQuery · Sector share 2024</div>
+        <pre><span class="kw">SELECT</span>
+  n.NaceLevel2Name  <span class="kw">AS</span> sector,
+  <span class="fn">COUNT</span>(<span class="fn">DISTINCT</span> c.cvr)
+    <span class="kw">AS</span> company_count,
+  <span class="fn">ROUND</span>(
+    <span class="fn">COUNT</span>(<span class="fn">DISTINCT</span> c.cvr)
+    * <span class="nb">100.0</span>
+    / <span class="fn">SUM</span>(<span class="fn">COUNT</span>(
+        <span class="fn">DISTINCT</span> c.cvr))
+      <span class="kw">OVER</span> (),
+  <span class="nb">1</span>) <span class="kw">AS</span> share_pct
+
+<span class="kw">FROM</span> <span class="st">`virkmart.dim_company`</span> c
+<span class="kw">LEFT JOIN</span>
+  <span class="st">`Danish_DB_NaceCodes`</span> n
+  <span class="kw">ON</span> <span class="fn">LEFT</span>(c.Industry,<span class="nb">2</span>)
+     = n.NaceCode2digit
+
+<span class="kw">WHERE</span>
+  c.Status <span class="kw">IN</span> (
+    <span class="st">'Aktiv'</span>,
+    <span class="st">'NORMAL'</span>,
+    <span class="st">'Omdannet'</span>)
+
+<span class="kw">GROUP BY</span> <span class="nb">1</span>
+<span class="kw">ORDER BY</span> company_count <span class="kw">DESC</span></pre>
+      </div>
+    </div>
+
+    <!-- CLOSURE RATE -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Formation vs. Closure Rate</div>
+          <div class="card-desc">Net change: new registrations minus dissolutions, by year</div>
+        </div>
+        <span class="card-tag tag-bar">Bar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap">
+          <canvas id="netChart"></canvas>
+        </div>
+      </div>
+      <div class="sql-toggle" onclick="toggleSql(this)">
+        <span class="arrow">▶</span> View BigQuery SQL
+      </div>
+      <div class="sql-panel">
+        <div class="sql-meta">BigQuery · Net formation rate</div>
+        <pre><span class="kw">WITH</span> events <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span>
+      RegistreringsDato) yr,
+    <span class="st">'formation'</span> type
+  <span class="kw">FROM</span> <span class="st">`virkmart.dim_company`</span>
+  <span class="kw">WHERE</span> RegistreringsDato
+    <span class="kw">IS NOT NULL</span>
+
+  <span class="kw">UNION ALL</span>
+
+  <span class="kw">SELECT</span>
+    <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span>
+      OphoersDato) yr,
+    <span class="st">'closure'</span> type
+  <span class="kw">FROM</span> <span class="st">`virkmart.dim_company`</span>
+  <span class="kw">WHERE</span> OphoersDato
+    <span class="kw">IS NOT NULL</span>
+    <span class="kw">AND</span> Status <span class="kw">NOT IN</span> (
+      <span class="st">'Aktiv'</span>,<span class="st">'NORMAL'</span>,
+      <span class="st">'Omdannet'</span>)
+)
+<span class="kw">SELECT</span>
+  yr <span class="kw">AS</span> year,
+  <span class="fn">COUNTIF</span>(type=<span class="st">'formation'</span>)
+    <span class="kw">AS</span> formations,
+  <span class="fn">COUNTIF</span>(type=<span class="st">'closure'</span>)
+    <span class="kw">AS</span> closures
+<span class="kw">FROM</span> events
+<span class="kw">WHERE</span> yr <span class="kw">BETWEEN</span> <span class="nb">2021</span>
+  <span class="kw">AND</span> <span class="nb">2024</span>
+<span class="kw">GROUP BY</span> <span class="nb">1</span>
+<span class="kw">ORDER BY</span> <span class="nb">1</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Full width sector table -->
+  <div class="charts-full">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Sector Scorecard — All Industries Ranked</div>
+          <div class="card-desc">Company count 2024 · 4-year growth · trend direction · sorted by absolute size</div>
+        </div>
+        <span class="card-tag tag-table">Ranked Table</span>
+      </div>
+      <div class="card-body" style="padding: 0">
+        <table class="sector-table">
+          <thead>
+            <tr>
+              <th style="padding-left:20px">#</th>
+              <th>Sector</th>
+              <th>NACE</th>
+              <th>Companies 2021</th>
+              <th>Companies 2024</th>
+              <th style="min-width:200px">4-Year Growth</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="sector-tbody"></tbody>
+        </table>
+      </div>
+      <div class="sql-toggle" onclick="toggleSql(this)">
+        <span class="arrow">▶</span> View BigQuery SQL — Full sector scorecard
+      </div>
+      <div class="sql-panel">
+        <div class="sql-meta">BigQuery · Complete sector ranking query</div>
+        <pre><span class="kw">WITH</span> yearly <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    n.NaceLevel1Name                                      <span class="kw">AS</span> nace_section,
+    n.NaceLevel2Name                                      <span class="kw">AS</span> sector,
+    <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span> c.RegistreringsDato)              <span class="kw">AS</span> year,
+    <span class="fn">COUNT</span>(<span class="fn">DISTINCT</span> c.cvr)                               <span class="kw">AS</span> company_count
+  <span class="kw">FROM</span> <span class="st">`visma-marketing-cloud-master.virkmart.dim_company`</span> c
+  <span class="kw">LEFT JOIN</span> <span class="st">`custom_dimensions.Danish_DB_NaceCodes`</span> n
+    <span class="kw">ON</span> <span class="fn">LEFT</span>(c.Industry, <span class="nb">2</span>) = n.NaceCode2digit
+  <span class="kw">WHERE</span>
+    c.Status <span class="kw">IN</span> (<span class="st">'Aktiv'</span>, <span class="st">'NORMAL'</span>, <span class="st">'Omdannet'</span>)
+    <span class="kw">AND</span> <span class="fn">EXTRACT</span>(<span class="kw">YEAR FROM</span> c.RegistreringsDato) <span class="kw">BETWEEN</span> <span class="nb">2021</span> <span class="kw">AND</span> <span class="nb">2024</span>
+    <span class="kw">AND</span> n.NaceLevel2Name <span class="kw">IS NOT NULL</span>
+  <span class="kw">GROUP BY</span> <span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>
+),
+pivoted <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    nace_section,
+    sector,
+    <span class="fn">MAX</span>(<span class="kw">IF</span>(year = <span class="nb">2021</span>, company_count, <span class="kw">NULL</span>))  <span class="kw">AS</span> cnt_2021,
+    <span class="fn">MAX</span>(<span class="kw">IF</span>(year = <span class="nb">2022</span>, company_count, <span class="kw">NULL</span>))  <span class="kw">AS</span> cnt_2022,
+    <span class="fn">MAX</span>(<span class="kw">IF</span>(year = <span class="nb">2023</span>, company_count, <span class="kw">NULL</span>))  <span class="kw">AS</span> cnt_2023,
+    <span class="fn">MAX</span>(<span class="kw">IF</span>(year = <span class="nb">2024</span>, company_count, <span class="kw">NULL</span>))  <span class="kw">AS</span> cnt_2024
+  <span class="kw">FROM</span> yearly
+  <span class="kw">GROUP BY</span> <span class="nb">1</span>, <span class="nb">2</span>
+)
+<span class="kw">SELECT</span>
+  nace_section,
+  sector,
+  cnt_2021,
+  cnt_2024,
+  <span class="fn">ROUND</span>((cnt_2024 - cnt_2021) * <span class="nb">100.0</span> / <span class="fn">NULLIF</span>(cnt_2021, <span class="nb">0</span>), <span class="nb">1</span>) <span class="kw">AS</span> growth_pct,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> (cnt_2024 - cnt_2021) / <span class="fn">NULLIF</span>(cnt_2021, <span class="nb">0</span>) > <span class="nb">0.05</span>  <span class="kw">THEN</span> <span class="st">'Growing'</span>
+    <span class="kw">WHEN</span> (cnt_2024 - cnt_2021) / <span class="fn">NULLIF</span>(cnt_2021, <span class="nb">0</span>) < <span class="nb">-0.05</span> <span class="kw">THEN</span> <span class="st">'Declining'</span>
+    <span class="kw">ELSE</span> <span class="st">'Stable'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> trend_status
+<span class="kw">FROM</span> pivoted
+<span class="kw">ORDER BY</span> cnt_2024 <span class="kw">DESC</span></pre>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+  <!-- ── AI INSIGHTS SECTION ── -->
+  <div class="insights-section" id="insights-section">
+
+    <div class="insights-header">
+      <div class="insights-headline">
+        <h2>Dynamic Insights</h2>
+        <span class="ai-badge"><span class="ai-badge-dot"></span>Claude API</span>
+      </div>
+      <button class="generate-btn" id="gen-btn" onclick="generateInsights()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        Generate Insights from Data
+      </button>
+    </div>
+
+    <div class="insights-how">
+      <span>💡</span>
+      <span><strong>How this works:</strong> Clicking the button serialises the chart data currently visible on this page and sends it to the Claude API. Claude reads the numbers and streams back contextual insights in real time — no backend required. With live BigQuery data, this runs automatically whenever the filters change.</span>
+    </div>
+
+    <!-- Prompt preview (shown before generation) -->
+    <div class="insights-prompt-note" id="prompt-preview">
+      <div class="insights-prompt-label">Prompt sent to Claude API → claude-sonnet-4-20250514</div>
+      <div class="insights-prompt-text" id="prompt-text">// Click "Generate Insights" to see the live prompt and response</div>
+    </div>
+
+    <!-- Cards (3 top + 2 bottom, filled by API) -->
+    <div class="insights-grid" id="insight-cards-top">
+      <div class="insight-card growth" id="ic-0"><div class="insight-type">Growth Signal</div><div class="insight-title" id="it-0">&nbsp;</div><div class="insight-body" id="ib-0"><span style="color:var(--ink3);font-size:12px">Awaiting data analysis…</span></div></div>
+      <div class="insight-card risk"   id="ic-1"><div class="insight-type">Risk Alert</div><div class="insight-title" id="it-1">&nbsp;</div><div class="insight-body" id="ib-1"><span style="color:var(--ink3);font-size:12px">Awaiting data analysis…</span></div></div>
+      <div class="insight-card oppty" id="ic-2"><div class="insight-type">Opportunity</div><div class="insight-title" id="it-2">&nbsp;</div><div class="insight-body" id="ib-2"><span style="color:var(--ink3);font-size:12px">Awaiting data analysis…</span></div></div>
+    </div>
+    <div class="insights-grid" id="insight-cards-bot">
+      <div class="insight-card market" id="ic-3"><div class="insight-type">Market Structure</div><div class="insight-title" id="it-3">&nbsp;</div><div class="insight-body" id="ib-3"><span style="color:var(--ink3);font-size:12px">Awaiting data analysis…</span></div></div>
+      <div class="insight-card signal" id="ic-4"><div class="insight-type">Leading Signal</div><div class="insight-title" id="it-4">&nbsp;</div><div class="insight-body" id="ib-4"><span style="color:var(--ink3);font-size:12px">Awaiting data analysis…</span></div></div>
+      <div class="insight-card oppty" id="ic-5"><div class="insight-type">Visma Implication</div><div class="insight-title" id="it-5">&nbsp;</div><div class="insight-body" id="ib-5"><span style="color:var(--ink3);font-size:12px">Awaiting data analysis…</span></div></div>
+    </div>
+
+    <!-- Summary paragraph -->
+    <div class="insights-summary" id="insights-summary">
+      <div class="insights-summary-label">Executive Summary</div>
+      <div class="insights-summary-text" id="insights-summary-text">
+        <span style="color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:14px;">Generate insights to see an executive summary here…</span>
+      </div>
+    </div>
+
+  </div>
+
+<footer class="footer">
+  <div class="footer-note">Virkmart Demo · Synthetic data · Structure mirrors visma-marketing-cloud-master.virkmart.dim_company · Built with Claude + Chart.js</div>
+  <div class="footer-sql-hint">SELECT * FROM virkmart.dim_company WHERE Status IN ('Aktiv','NORMAL','Omdannet')</div>
+</footer>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────
+const YEARS = [2021, 2022, 2023, 2024];
+
+const SECTORS = [
+  { name: 'Prof., Scientific & Technical', code: '69–75', cnt: [84200, 87100, 89800, 92800], color: '#1A4A8A' },
+  { name: 'Wholesale & Retail Trade',       code: '45–47', cnt: [71400, 70200, 68900, 67100], color: '#9B2020' },
+  { name: 'Construction',                   code: '41–43', cnt: [65800, 67200, 68100, 68700], color: '#C9881A' },
+  { name: 'Real Estate Activities',         code: '68',    cnt: [54200, 56800, 58600, 60100], color: '#1E6B42' },
+  { name: 'Information & Communication',    code: '58–63', cnt: [33400, 36200, 38800, 39600], color: '#1A6878' },
+  { name: 'Transportation & Storage',       code: '49–53', cnt: [38100, 37600, 36900, 36200], color: '#7B3FA0' },
+  { name: 'Manufacturing',                  code: '10–33', cnt: [30800, 29900, 29100, 28400], color: '#A05020' },
+  { name: 'Accommodation & Food Services',  code: '55–56', cnt: [25100, 23800, 22900, 22800], color: '#C04080' },
+];
+
+// ── CHARTS ───────────────────────────────────────────────
+const FONT = "'DM Sans', sans-serif";
+const gridColor = '#E8E4DC';
+
+Chart.defaults.font.family = FONT;
+Chart.defaults.color = '#5C5650';
+
+// 1. LINE CHART
+const lineCtx = document.getElementById('lineChart').getContext('2d');
+new Chart(lineCtx, {
+  type: 'line',
+  data: {
+    labels: YEARS,
+    datasets: SECTORS.map(s => ({
+      label: s.name,
+      data: s.cnt,
+      borderColor: s.color,
+      backgroundColor: s.color + '15',
+      borderWidth: 2,
+      pointRadius: 4,
+      pointHoverRadius: 7,
+      tension: 0.35,
+      fill: false
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `  ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}`
+        }
+      }
+    },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { font: { size: 12 } } },
+      y: {
+        grid: { color: gridColor },
+        ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0) + 'K' }
+      }
+    }
+  }
+});
+
+// 2. GROWTH BAR
+const growthData = SECTORS.map(s => ({
+  name: s.name.split(' ').slice(0,3).join(' '),
+  pct: +((s.cnt[3] - s.cnt[0]) * 100 / s.cnt[0]).toFixed(1),
+  color: s.color
+})).sort((a,b) => b.pct - a.pct);
+
+const growthCtx = document.getElementById('growthChart').getContext('2d');
+new Chart(growthCtx, {
+  type: 'bar',
+  data: {
+    labels: growthData.map(d => d.name),
+    datasets: [{
+      label: '% Change 2021→2024',
+      data: growthData.map(d => d.pct),
+      backgroundColor: growthData.map(d => d.pct >= 0 ? '#1E6B4222' : '#9B202022'),
+      borderColor: growthData.map(d => d.pct >= 0 ? '#1E6B42' : '#9B2020'),
+      borderWidth: 2,
+      borderRadius: 5
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.raw > 0 ? '+' : ''}${ctx.raw}%` } }
+    },
+    scales: {
+      x: {
+        grid: { color: gridColor },
+        ticks: { callback: v => v + '%', font: { size: 11 } },
+        min: -12, max: 22
+      },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// 3. AREA CHART (top 4 sectors)
+const TOP4 = SECTORS.slice(0, 4);
+const areaCtx = document.getElementById('areaChart').getContext('2d');
+// Simulate formation data (new companies per year, smaller subset of total)
+const formationData = TOP4.map(s => ({
+  ...s,
+  forms: [
+    Math.round(s.cnt[0]*0.08),
+    Math.round(s.cnt[1]*0.079),
+    Math.round(s.cnt[2]*0.078),
+    Math.round(s.cnt[3]*0.076)
+  ]
+}));
+new Chart(areaCtx, {
+  type: 'line',
+  data: {
+    labels: YEARS,
+    datasets: formationData.map(s => ({
+      label: s.name.split(' ').slice(0,2).join(' '),
+      data: s.forms,
+      borderColor: s.color,
+      backgroundColor: s.color + '25',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 4
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 10.5 } } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(1)+'K' } }
+    }
+  }
+});
+
+// 4. DOUGHNUT
+const dCtx = document.getElementById('doughnut').getContext('2d');
+new Chart(dCtx, {
+  type: 'doughnut',
+  data: {
+    labels: SECTORS.map(s => s.name.split(' ').slice(0,2).join(' ')),
+    datasets: [{
+      data: SECTORS.map(s => s.cnt[3]),
+      backgroundColor: SECTORS.map(s => s.color + 'CC'),
+      borderColor: '#ffffff',
+      borderWidth: 2,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: {
+      legend: { position: 'right', labels: { boxWidth: 11, padding: 10, font: { size: 10.5 } } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()}` } }
+    }
+  }
+});
+
+// 5. NET FORMATIONS
+const netCtx = document.getElementById('netChart').getContext('2d');
+const formations = [48200, 46800, 45100, 46300];
+const closures   = [36400, 38200, 37600, 39800];
+new Chart(netCtx, {
+  type: 'bar',
+  data: {
+    labels: YEARS,
+    datasets: [
+      { label: 'Formations', data: formations, backgroundColor: '#1E6B4233', borderColor: '#1E6B42', borderWidth: 2, borderRadius: 4 },
+      { label: 'Closures',   data: closures,   backgroundColor: '#9B202033', borderColor: '#9B2020', borderWidth: 2, borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } }
+    },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0)+'K' } }
+    }
+  }
+});
+
+// ── SECTOR TABLE ─────────────────────────────────────────
+const tbody = document.getElementById('sector-tbody');
+const sorted = [...SECTORS].sort((a,b) => b.cnt[3] - a.cnt[3]);
+sorted.forEach((s, i) => {
+  const pct = ((s.cnt[3] - s.cnt[0]) * 100 / s.cnt[0]);
+  const isUp = pct >= 0;
+  const absMax = 20;
+  const barW = Math.min(Math.abs(pct) / absMax * 100, 100);
+  const status = pct > 5 ? '▲ Growing' : pct < -3 ? '▼ Declining' : '→ Stable';
+  const statusColor = pct > 5 ? 'var(--green)' : pct < -3 ? 'var(--red)' : 'var(--gold)';
+  const statusBg = pct > 5 ? 'var(--green-pale)' : pct < -3 ? 'var(--red-pale)' : 'var(--gold-pale)';
+  tbody.innerHTML += `<tr>
+    <td style="padding-left:20px;color:var(--ink3);font-size:12px">${i+1}</td>
+    <td><div class="sector-name">${s.name}</div></td>
+    <td><span class="sector-code">${s.code}</span></td>
+    <td style="font-family:'DM Mono',monospace;font-size:13px">${s.cnt[0].toLocaleString()}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${s.cnt[3].toLocaleString()}</td>
+    <td>
+      <div class="trend-bar-wrap">
+        <div class="trend-bar-track">
+          <div class="trend-bar-fill" style="width:${barW}%;background:${isUp ? 'var(--green)' : 'var(--red)'}"></div>
+        </div>
+        <span class="trend-val ${isUp ? 'up' : 'down'}">${isUp?'+':''}${pct.toFixed(1)}%</span>
+      </div>
+    </td>
+    <td>
+      <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:${statusBg};color:${statusColor}">${status}</span>
+    </td>
+  </tr>`;
+});
+
+// ── CLAUDE API — DYNAMIC INSIGHTS ────────────────────────
+
+function buildDataSummary() {
+  const growthData = SECTORS.map(s => ({
+    name: s.name,
+    cnt2021: s.cnt[0],
+    cnt2024: s.cnt[3],
+    pct: +((s.cnt[3] - s.cnt[0]) * 100 / s.cnt[0]).toFixed(1)
+  })).sort((a,b) => b.pct - a.pct);
+
+  const topGrower  = growthData[0];
+  const topDecline = growthData[growthData.length - 1];
+  const total2024  = SECTORS.reduce((s, d) => s + d.cnt[3], 0);
+  const total2021  = SECTORS.reduce((s, d) => s + d.cnt[0], 0);
+
+  const formations = [48200, 46800, 45100, 46300];
+  const closures   = [36400, 38200, 37600, 39800];
+
+  return {
+    period: '2021–2024',
+    country: 'Denmark',
+    source: 'virkmart.dim_company (Status IN Aktiv/NORMAL/Omdannet)',
+    totalActive2024: total2024.toLocaleString(),
+    totalActive2021: total2021.toLocaleString(),
+    overallGrowthPct: +((total2024 - total2021) * 100 / total2021).toFixed(1),
+    sectors: growthData,
+    formations: { '2021': 48200, '2022': 46800, '2023': 45100, '2024': 46300 },
+    closures:   { '2021': 36400, '2022': 38200, '2023': 37600, '2024': 39800 },
+    netFormationRate2024: +(( (formations[3] - closures[3]) / closures[3] * 100 )).toFixed(1),
+    fastestGrowing: topGrower,
+    steepestDecline: topDecline
+  };
+}
+
+function buildPrompt(data) {
+  const sectorLines = data.sectors.map(s =>
+    `  - ${s.name}: ${s.cnt2021.toLocaleString()} → ${s.cnt2024.toLocaleString()} companies (${s.pct > 0 ? '+' : ''}${s.pct}%)`
+  ).join('\n');
+
+  return `You are a senior business analyst at Visma Group, a portfolio of 200+ B2B SaaS companies across Europe focused on ERP, accounting, and payroll software for SMEs.
+
+You have just run a BigQuery analysis of the Danish company registry (source: visma-marketing-cloud-master.virkmart.dim_company) and have the following data:
+
+PERIOD: ${data.period}
+COUNTRY: ${data.country}
+TOTAL ACTIVE COMPANIES 2024: ${data.totalActive2024}
+TOTAL ACTIVE COMPANIES 2021: ${data.totalActive2021}
+OVERALL MARKET GROWTH: +${data.overallGrowthPct}%
+
+SECTOR BREAKDOWN (company count growth 2021→2024):
+${sectorLines}
+
+FORMATION & CLOSURE TRENDS:
+  - 2021: ${data.formations['2021'].toLocaleString()} formations / ${data.closures['2021'].toLocaleString()} closures
+  - 2022: ${data.formations['2022'].toLocaleString()} formations / ${data.closures['2022'].toLocaleString()} closures
+  - 2023: ${data.formations['2023'].toLocaleString()} formations / ${data.closures['2023'].toLocaleString()} closures
+  - 2024: ${data.formations['2024'].toLocaleString()} formations / ${data.closures['2024'].toLocaleString()} closures
+
+Generate exactly 6 business insights from this data, then an executive summary. Respond ONLY with valid JSON — no markdown, no preamble, no backticks.
+
+Format:
+{
+  "insights": [
+    {
+      "type": "growth|risk|oppty|market|signal",
+      "title": "Short punchy title (max 8 words)",
+      "body": "2-3 sentence analytical insight grounded in the specific numbers above. Include specific figures. Be direct and actionable.",
+      "stat": "One key metric or takeaway (e.g. +18.4% in 4 years)"
+    }
+  ],
+  "summary": "3-4 sentence executive summary of the Danish market from a Visma perspective. What does this mean for our product, sales, and growth strategy? Be specific and strategic."
+}
+
+The 6 insights must cover in order: (1) a growth signal, (2) a risk alert, (3) an opportunity, (4) market structure observation, (5) a leading signal or forward-looking point, (6) a Visma-specific strategic implication.`;
+}
+
+async function generateInsights() {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Analysing with Claude…`;
+
+  const data   = buildDataSummary();
+  const prompt = buildPrompt(data);
+
+  // Show the prompt being sent
+  document.getElementById('prompt-text').textContent = prompt.slice(0, 900) + '\n\n[… truncated for display — full prompt sent to API]';
+
+  // Scroll to insights
+  document.getElementById('insights-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Reset cards
+  for (let i = 0; i < 6; i++) {
+    document.getElementById(`it-${i}`).textContent = '';
+    document.getElementById(`ib-${i}`).innerHTML = '<span class="cursor"></span>';
+  }
+  document.getElementById('insights-summary-text').innerHTML = '<span class="cursor"></span>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const json = await res.json();
+    const raw  = json.content?.[0]?.text || '';
+
+    // Parse JSON — strip any accidental backticks
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    const parsed  = JSON.parse(cleaned);
+
+    const TYPES = ['growth', 'risk', 'oppty', 'market', 'signal', 'oppty'];
+
+    parsed.insights.forEach((ins, i) => {
+      if (i >= 6) return;
+      const card  = document.getElementById(`ic-${i}`);
+      const title = document.getElementById(`it-${i}`);
+      const body  = document.getElementById(`ib-${i}`);
+
+      // Update type class
+      card.className = `insight-card ${TYPES[i]}`;
+
+      // Stream title character by character
+      title.textContent = '';
+      let ti = 0;
+      const titleStr = ins.title || '';
+      const titleInterval = setInterval(() => {
+        if (ti < titleStr.length) {
+          title.textContent += titleStr[ti++];
+        } else {
+          clearInterval(titleInterval);
+        }
+      }, 28);
+
+      // Stream body with slight delay
+      setTimeout(() => {
+        body.innerHTML = '<span class="cursor"></span>';
+        let bi = 0;
+        const bodyStr = (ins.body || '') + (ins.stat ? `\n\n→ ${ins.stat}` : '');
+        const cursor  = body.querySelector('.cursor');
+        const bodyInterval = setInterval(() => {
+          if (bi < bodyStr.length) {
+            const ch = bodyStr[bi++];
+            cursor.before(ch === '\n' ? document.createElement('br') : document.createTextNode(ch));
+          } else {
+            clearInterval(bodyInterval);
+            cursor.remove();
+          }
+        }, 14);
+      }, 200 + i * 120);
+
+      // Animate card in
+      setTimeout(() => card.classList.add('visible'), 80 + i * 100);
+    });
+
+    // Stream summary
+    setTimeout(() => {
+      const summaryEl = document.getElementById('insights-summary');
+      const summaryText = document.getElementById('insights-summary-text');
+      summaryEl.classList.add('visible');
+      summaryText.innerHTML = '<span class="cursor"></span>';
+      const summaryStr = parsed.summary || '';
+      let si = 0;
+      const cursor = summaryText.querySelector('.cursor');
+      const sumInterval = setInterval(() => {
+        if (si < summaryStr.length) {
+          cursor.before(document.createTextNode(summaryStr[si++]));
+        } else {
+          clearInterval(sumInterval);
+          cursor.remove();
+        }
+      }, 18);
+    }, 600);
+
+  } catch (err) {
+    console.error('Claude API error:', err);
+    document.getElementById('ib-0').textContent = 'Error contacting Claude API. Check console.';
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Regenerate Insights`;
+}
+
+function toggleSql(el) {
+  el.classList.toggle('open');
+  const panel = el.nextElementSibling;
+  panel.classList.toggle('open');
+}
+
+function setPeriod(btn, years) {
+  document.querySelectorAll('.ctrl-pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // In a real implementation: re-query BQ with new date range and update charts
+  // For this demo: just show a console note
+  console.log(`[BQ Demo] Would re-run queries with BETWEEN ${2024-years+1} AND 2024`);
+}
+</script>
+</body>
+</html>
