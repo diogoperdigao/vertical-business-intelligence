@@ -920,9 +920,9 @@ pivoted <span class="kw">AS</span> (
               <th style="padding-left:20px">#</th>
               <th>Sector</th>
               <th>NACE</th>
-              <th>Companies 2021</th>
-              <th>Companies 2024</th>
-              <th style="min-width:200px">4-Year Growth</th>
+              <th id="th-start">Companies 2021</th>
+              <th id="th-end">Companies 2024</th>
+              <th id="th-growth" style="min-width:200px">2021→2024 Growth</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -1035,7 +1035,10 @@ pivoted <span class="kw">AS</span> (
 
 <script>
 // ── DATA ─────────────────────────────────────────────────
-const YEARS = [2021, 2022, 2023, 2024];
+// All 4 years of data. Index 0=2021, 1=2022, 2=2023, 3=2024
+const ALL_YEARS = [2021, 2022, 2023, 2024];
+const ALL_FORMATIONS = [48200, 46800, 45100, 46300];
+const ALL_CLOSURES   = [36400, 38200, 37600, 39800];
 
 const SECTORS = [
   { name: 'Prof., Scientific & Technical', code: '69–75', cnt: [84200, 87100, 89800, 92800], color: '#1A4A8A' },
@@ -1048,250 +1051,331 @@ const SECTORS = [
   { name: 'Accommodation & Food Services',  code: '55–56', cnt: [25100, 23800, 22900, 22800], color: '#C04080' },
 ];
 
-// ── CHARTS ───────────────────────────────────────────────
-const FONT = "'DM Sans', sans-serif";
-const gridColor = '#E8E4DC';
+// Active period state — indices into ALL_YEARS
+let startIdx = 0;  // 2021
+let endIdx   = 3;  // 2024
 
+// ── HELPERS ──────────────────────────────────────────────
+const FONT      = "'DM Sans', sans-serif";
+const gridColor = '#E8E4DC';
 Chart.defaults.font.family = FONT;
 Chart.defaults.color = '#5C5650';
 
-// 1. LINE CHART
-const lineCtx = document.getElementById('lineChart').getContext('2d');
-new Chart(lineCtx, {
-  type: 'line',
-  data: {
-    labels: YEARS,
-    datasets: SECTORS.map(s => ({
-      label: s.name,
-      data: s.cnt,
-      borderColor: s.color,
-      backgroundColor: s.color + '15',
-      borderWidth: 2,
-      pointRadius: 4,
-      pointHoverRadius: 7,
-      tension: 0.35,
-      fill: false
-    }))
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, font: { size: 11 } } },
-      tooltip: {
-        callbacks: {
-          label: ctx => `  ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}`
-        }
-      }
-    },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { font: { size: 12 } } },
-      y: {
-        grid: { color: gridColor },
-        ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0) + 'K' }
-      }
-    }
-  }
-});
+// Returns sliced years for active period
+function activeYears()      { return ALL_YEARS.slice(startIdx, endIdx + 1); }
+function activeFormations()  { return ALL_FORMATIONS.slice(startIdx, endIdx + 1); }
+function activeClosures()    { return ALL_CLOSURES.slice(startIdx, endIdx + 1); }
 
-// 2. GROWTH BAR
-const growthData = SECTORS.map(s => ({
-  name: s.name.split(' ').slice(0,3).join(' '),
-  pct: +((s.cnt[3] - s.cnt[0]) * 100 / s.cnt[0]).toFixed(1),
-  color: s.color
-})).sort((a,b) => b.pct - a.pct);
+// Growth % from startIdx to endIdx for a sector
+function growth(s) {
+  return +((s.cnt[endIdx] - s.cnt[startIdx]) * 100 / s.cnt[startIdx]).toFixed(1);
+}
 
-const growthCtx = document.getElementById('growthChart').getContext('2d');
-new Chart(growthCtx, {
-  type: 'bar',
-  data: {
-    labels: growthData.map(d => d.name),
-    datasets: [{
-      label: '% Change 2021→2024',
-      data: growthData.map(d => d.pct),
-      backgroundColor: growthData.map(d => d.pct >= 0 ? '#1E6B4222' : '#9B202022'),
-      borderColor: growthData.map(d => d.pct >= 0 ? '#1E6B42' : '#9B2020'),
-      borderWidth: 2,
-      borderRadius: 5
-    }]
-  },
-  options: {
-    indexAxis: 'y',
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ` ${ctx.raw > 0 ? '+' : ''}${ctx.raw}%` } }
+// ── CHART INSTANCES (kept for updates) ───────────────────
+let lineChart, growthChart, areaChart, doughnutChart, netChart;
+
+// ── INIT ─────────────────────────────────────────────────
+function buildCharts() {
+  const years = activeYears();
+
+  // 1. LINE CHART
+  lineChart = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: SECTORS.map(s => ({
+        label: s.name,
+        data: s.cnt.slice(startIdx, endIdx + 1),
+        borderColor: s.color,
+        backgroundColor: s.color + '15',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        tension: 0.35,
+        fill: false
+      }))
     },
-    scales: {
-      x: {
-        grid: { color: gridColor },
-        ticks: { callback: v => v + '%', font: { size: 11 } },
-        min: -12, max: 22
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => `  ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}` } }
       },
-      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { font: { size: 12 } } },
+        y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0) + 'K' } }
+      }
     }
-  }
-});
+  });
 
-// 3. AREA CHART (top 4 sectors)
-const TOP4 = SECTORS.slice(0, 4);
-const areaCtx = document.getElementById('areaChart').getContext('2d');
-// Simulate formation data (new companies per year, smaller subset of total)
-const formationData = TOP4.map(s => ({
-  ...s,
-  forms: [
-    Math.round(s.cnt[0]*0.08),
-    Math.round(s.cnt[1]*0.079),
-    Math.round(s.cnt[2]*0.078),
-    Math.round(s.cnt[3]*0.076)
-  ]
-}));
-new Chart(areaCtx, {
-  type: 'line',
-  data: {
-    labels: YEARS,
-    datasets: formationData.map(s => ({
-      label: s.name.split(' ').slice(0,2).join(' '),
-      data: s.forms,
-      borderColor: s.color,
-      backgroundColor: s.color + '25',
-      borderWidth: 2,
-      fill: true,
-      tension: 0.4,
-      pointRadius: 4
-    }))
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 10.5 } } } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
-      y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(1)+'K' } }
-    }
-  }
-});
-
-// 4. DOUGHNUT
-const dCtx = document.getElementById('doughnut').getContext('2d');
-new Chart(dCtx, {
-  type: 'doughnut',
-  data: {
-    labels: SECTORS.map(s => s.name.split(' ').slice(0,2).join(' ')),
-    datasets: [{
-      data: SECTORS.map(s => s.cnt[3]),
-      backgroundColor: SECTORS.map(s => s.color + 'CC'),
-      borderColor: '#ffffff',
-      borderWidth: 2,
-      hoverOffset: 8
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '62%',
-    plugins: {
-      legend: { position: 'right', labels: { boxWidth: 11, padding: 10, font: { size: 10.5 } } },
-      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()}` } }
-    }
-  }
-});
-
-// 5. NET FORMATIONS
-const netCtx = document.getElementById('netChart').getContext('2d');
-const formations = [48200, 46800, 45100, 46300];
-const closures   = [36400, 38200, 37600, 39800];
-new Chart(netCtx, {
-  type: 'bar',
-  data: {
-    labels: YEARS,
-    datasets: [
-      { label: 'Formations', data: formations, backgroundColor: '#1E6B4233', borderColor: '#1E6B42', borderWidth: 2, borderRadius: 4 },
-      { label: 'Closures',   data: closures,   backgroundColor: '#9B202033', borderColor: '#9B2020', borderWidth: 2, borderRadius: 4 }
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } }
+  // 2. GROWTH BAR
+  const gd = buildGrowthData();
+  growthChart = new Chart(document.getElementById('growthChart'), {
+    type: 'bar',
+    data: {
+      labels: gd.map(d => d.name),
+      datasets: [{
+        label: `% Change ${ALL_YEARS[startIdx]}→${ALL_YEARS[endIdx]}`,
+        data: gd.map(d => d.pct),
+        backgroundColor: gd.map(d => d.pct >= 0 ? '#1E6B4222' : '#9B202022'),
+        borderColor: gd.map(d => d.pct >= 0 ? '#1E6B42' : '#9B2020'),
+        borderWidth: 2, borderRadius: 5
+      }]
     },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
-      y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0)+'K' } }
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw > 0 ? '+' : ''}${ctx.raw}%` } }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { callback: v => v + '%', font: { size: 11 } }, min: -15, max: 25 },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
     }
-  }
-});
+  });
 
-// ── SECTOR TABLE ─────────────────────────────────────────
-const tbody = document.getElementById('sector-tbody');
-const sorted = [...SECTORS].sort((a,b) => b.cnt[3] - a.cnt[3]);
-sorted.forEach((s, i) => {
-  const pct = ((s.cnt[3] - s.cnt[0]) * 100 / s.cnt[0]);
-  const isUp = pct >= 0;
-  const absMax = 20;
-  const barW = Math.min(Math.abs(pct) / absMax * 100, 100);
-  const status = pct > 5 ? '▲ Growing' : pct < -3 ? '▼ Declining' : '→ Stable';
-  const statusColor = pct > 5 ? 'var(--green)' : pct < -3 ? 'var(--red)' : 'var(--gold)';
-  const statusBg = pct > 5 ? 'var(--green-pale)' : pct < -3 ? 'var(--red-pale)' : 'var(--gold-pale)';
-  tbody.innerHTML += `<tr>
-    <td style="padding-left:20px;color:var(--ink3);font-size:12px">${i+1}</td>
-    <td><div class="sector-name">${s.name}</div></td>
-    <td><span class="sector-code">${s.code}</span></td>
-    <td style="font-family:'DM Mono',monospace;font-size:13px">${s.cnt[0].toLocaleString()}</td>
-    <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${s.cnt[3].toLocaleString()}</td>
-    <td>
-      <div class="trend-bar-wrap">
-        <div class="trend-bar-track">
-          <div class="trend-bar-fill" style="width:${barW}%;background:${isUp ? 'var(--green)' : 'var(--red)'}"></div>
+  // 3. AREA CHART
+  areaChart = new Chart(document.getElementById('areaChart'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: SECTORS.slice(0, 4).map(s => ({
+        label: s.name.split(' ').slice(0,2).join(' '),
+        data: s.cnt.slice(startIdx, endIdx + 1).map((v, i) => Math.round(v * (0.08 - i * 0.0013))),
+        borderColor: s.color,
+        backgroundColor: s.color + '25',
+        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 4
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 10.5 } } } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(1)+'K' } }
+      }
+    }
+  });
+
+  // 4. DOUGHNUT — always shows end-year snapshot
+  doughnutChart = new Chart(document.getElementById('doughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: SECTORS.map(s => s.name.split(' ').slice(0,2).join(' ')),
+      datasets: [{
+        data: SECTORS.map(s => s.cnt[endIdx]),
+        backgroundColor: SECTORS.map(s => s.color + 'CC'),
+        borderColor: '#ffffff', borderWidth: 2, hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 11, padding: 10, font: { size: 10.5 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()}` } }
+      }
+    }
+  });
+
+  // 5. NET FORMATIONS
+  netChart = new Chart(document.getElementById('netChart'), {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [
+        { label: 'Formations', data: activeFormations(), backgroundColor: '#1E6B4233', borderColor: '#1E6B42', borderWidth: 2, borderRadius: 4 },
+        { label: 'Closures',   data: activeClosures(),   backgroundColor: '#9B202033', borderColor: '#9B2020', borderWidth: 2, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0)+'K' } }
+      }
+    }
+  });
+}
+
+function buildGrowthData() {
+  return SECTORS.map(s => ({
+    name: s.name.split(' ').slice(0,3).join(' '),
+    pct: growth(s),
+    color: s.color
+  })).sort((a,b) => b.pct - a.pct);
+}
+
+// ── REFRESH — called whenever period changes ──────────────
+function refresh() {
+  const years = activeYears();
+  const sy = ALL_YEARS[startIdx];
+  const ey = ALL_YEARS[endIdx];
+
+  // 1. Line chart
+  lineChart.data.labels = years;
+  lineChart.data.datasets.forEach((ds, i) => {
+    ds.data = SECTORS[i].cnt.slice(startIdx, endIdx + 1);
+  });
+  lineChart.update();
+
+  // 2. Growth bar
+  const gd = buildGrowthData();
+  growthChart.data.labels = gd.map(d => d.name);
+  growthChart.data.datasets[0].label   = `% Change ${sy}→${ey}`;
+  growthChart.data.datasets[0].data    = gd.map(d => d.pct);
+  growthChart.data.datasets[0].backgroundColor = gd.map(d => d.pct >= 0 ? '#1E6B4222' : '#9B202022');
+  growthChart.data.datasets[0].borderColor     = gd.map(d => d.pct >= 0 ? '#1E6B42' : '#9B2020');
+  growthChart.update();
+
+  // 3. Area chart
+  areaChart.data.labels = years;
+  areaChart.data.datasets.forEach((ds, i) => {
+    ds.data = SECTORS[i].cnt.slice(startIdx, endIdx + 1).map((v, j) => Math.round(v * (0.08 - j * 0.0013)));
+  });
+  areaChart.update();
+
+  // 4. Doughnut — end year snapshot
+  doughnutChart.data.datasets[0].data = SECTORS.map(s => s.cnt[endIdx]);
+  doughnutChart.update();
+
+  // 5. Net chart
+  netChart.data.labels = years;
+  netChart.data.datasets[0].data = activeFormations();
+  netChart.data.datasets[1].data = activeClosures();
+  netChart.update();
+
+  // 6. KPIs
+  refreshKPIs();
+
+  // 7. Table headers + rows
+  refreshTable(sy, ey);
+
+  // 8. Update table header column labels
+  const thStart = document.getElementById('th-start');
+  const thEnd   = document.getElementById('th-end');
+  const thGrowth = document.getElementById('th-growth');
+  if (thStart) thStart.textContent = `Companies ${sy}`;
+  if (thEnd)   thEnd.textContent   = `Companies ${ey}`;
+  if (thGrowth) thGrowth.textContent = `${sy}→${ey} Growth`;
+}
+
+function refreshKPIs() {
+  const sy = ALL_YEARS[startIdx];
+  const ey = ALL_YEARS[endIdx];
+  const totalEnd   = SECTORS.reduce((acc, s) => acc + s.cnt[endIdx], 0);
+  const totalStart = SECTORS.reduce((acc, s) => acc + s.cnt[startIdx], 0);
+  const overallPct = ((totalEnd - totalStart) * 100 / totalStart).toFixed(1);
+
+  const sorted = [...SECTORS].sort((a,b) => growth(b) - growth(a));
+  const top    = sorted[0];
+  const bottom = sorted[sorted.length - 1];
+  const topPct    = growth(top);
+  const bottomPct = growth(bottom);
+
+  const fEnd   = ALL_FORMATIONS[endIdx];
+  const cEnd   = ALL_CLOSURES[endIdx];
+  const netPct = ((fEnd - cEnd) * 100 / cEnd).toFixed(1);
+
+  document.getElementById('kv-total').textContent = (totalEnd / 1000).toFixed(0) + 'K';
+  document.getElementById('kv-top').textContent   = top.name.split(' ')[0];
+  document.getElementById('kv-bot').textContent   = bottom.name.split(',')[0].split(' ').slice(0,2).join(' ');
+
+  // Update delta badges
+  const deltas = document.querySelectorAll('.kpi-delta');
+  if (deltas[0]) { deltas[0].textContent = `${overallPct > 0 ? '▲' : '▼'} ${overallPct > 0 ? '+' : ''}${overallPct}% vs ${sy}`; deltas[0].className = `kpi-delta ${overallPct >= 0 ? 'neutral' : 'down'}`; }
+  if (deltas[1]) { deltas[1].textContent = `▲ +${topPct}% (${sy}→${ey})`; }
+  if (deltas[2]) { deltas[2].textContent = `▼ ${bottomPct}% (${sy}→${ey})`; }
+  if (deltas[3]) { deltas[3].textContent = netPct >= 0 ? '▲ Market expanding' : '▼ Market contracting'; }
+}
+
+function refreshTable(sy, ey) {
+  const tbody = document.getElementById('sector-tbody');
+  tbody.innerHTML = '';
+  const sorted = [...SECTORS].sort((a,b) => b.cnt[endIdx] - a.cnt[endIdx]);
+  sorted.forEach((s, i) => {
+    const pct  = growth(s);
+    const isUp = pct >= 0;
+    const barW = Math.min(Math.abs(pct) / 25 * 100, 100);
+    const status      = pct > 5 ? '▲ Growing' : pct < -3 ? '▼ Declining' : '→ Stable';
+    const statusColor = pct > 5 ? 'var(--green)' : pct < -3 ? 'var(--red)' : 'var(--gold)';
+    const statusBg    = pct > 5 ? 'var(--green-pale)' : pct < -3 ? 'var(--red-pale)' : 'var(--gold-pale)';
+    tbody.innerHTML += `<tr>
+      <td style="padding-left:20px;color:var(--ink3);font-size:12px">${i+1}</td>
+      <td><div class="sector-name">${s.name}</div></td>
+      <td><span class="sector-code">${s.code}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px">${s.cnt[startIdx].toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${s.cnt[endIdx].toLocaleString()}</td>
+      <td>
+        <div class="trend-bar-wrap">
+          <div class="trend-bar-track">
+            <div class="trend-bar-fill" style="width:${barW}%;background:${isUp ? 'var(--green)' : 'var(--red)'}"></div>
+          </div>
+          <span class="trend-val ${isUp ? 'up' : 'down'}">${isUp?'+':''}${pct.toFixed(1)}%</span>
         </div>
-        <span class="trend-val ${isUp ? 'up' : 'down'}">${isUp?'+':''}${pct.toFixed(1)}%</span>
-      </div>
-    </td>
-    <td>
-      <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:${statusBg};color:${statusColor}">${status}</span>
-    </td>
-  </tr>`;
-});
+      </td>
+      <td><span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:${statusBg};color:${statusColor}">${status}</span></td>
+    </tr>`;
+  });
+}
+
+// ── PERIOD SELECTOR ───────────────────────────────────────
+function setPeriod(btn, numYears) {
+  document.querySelectorAll('.ctrl-pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  startIdx = 4 - numYears;  // e.g. 4 years → idx 0; 2 years → idx 2
+  endIdx   = 3;             // always ends at 2024
+  refresh();
+}
+
+// ── SQL TOGGLE ────────────────────────────────────────────
+function toggleSql(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
 
 // ── CLAUDE API — DYNAMIC INSIGHTS ────────────────────────
-
 function buildDataSummary() {
+  const sy = ALL_YEARS[startIdx];
+  const ey = ALL_YEARS[endIdx];
   const growthData = SECTORS.map(s => ({
     name: s.name,
-    cnt2021: s.cnt[0],
-    cnt2024: s.cnt[3],
-    pct: +((s.cnt[3] - s.cnt[0]) * 100 / s.cnt[0]).toFixed(1)
+    cntStart: s.cnt[startIdx],
+    cntEnd:   s.cnt[endIdx],
+    pct:      growth(s)
   })).sort((a,b) => b.pct - a.pct);
 
-  const topGrower  = growthData[0];
-  const topDecline = growthData[growthData.length - 1];
-  const total2024  = SECTORS.reduce((s, d) => s + d.cnt[3], 0);
-  const total2021  = SECTORS.reduce((s, d) => s + d.cnt[0], 0);
+  const totalEnd   = SECTORS.reduce((acc, s) => acc + s.cnt[endIdx], 0);
+  const totalStart = SECTORS.reduce((acc, s) => acc + s.cnt[startIdx], 0);
+  const forms = activeFormations();
+  const closes = activeClosures();
 
-  const formations = [48200, 46800, 45100, 46300];
-  const closures   = [36400, 38200, 37600, 39800];
+  const formObj = {}, closeObj = {};
+  activeYears().forEach((y,i) => { formObj[y] = forms[i]; closeObj[y] = closes[i]; });
 
   return {
-    period: '2021–2024',
+    period: `${sy}–${ey}`,
     country: 'Denmark',
     source: 'virkmart.dim_company (Status IN Aktiv/NORMAL/Omdannet)',
-    totalActive2024: total2024.toLocaleString(),
-    totalActive2021: total2021.toLocaleString(),
-    overallGrowthPct: +((total2024 - total2021) * 100 / total2021).toFixed(1),
+    totalActiveEnd:   totalEnd.toLocaleString(),
+    totalActiveStart: totalStart.toLocaleString(),
+    overallGrowthPct: +((totalEnd - totalStart) * 100 / totalStart).toFixed(1),
     sectors: growthData,
-    formations: { '2021': 48200, '2022': 46800, '2023': 45100, '2024': 46300 },
-    closures:   { '2021': 36400, '2022': 38200, '2023': 37600, '2024': 39800 },
-    netFormationRate2024: +(( (formations[3] - closures[3]) / closures[3] * 100 )).toFixed(1),
-    fastestGrowing: topGrower,
-    steepestDecline: topDecline
+    formations: formObj,
+    closures: closeObj,
+    fastestGrowing:  growthData[0],
+    steepestDecline: growthData[growthData.length - 1]
   };
 }
 
 function buildPrompt(data) {
   const sectorLines = data.sectors.map(s =>
-    `  - ${s.name}: ${s.cnt2021.toLocaleString()} → ${s.cnt2024.toLocaleString()} companies (${s.pct > 0 ? '+' : ''}${s.pct}%)`
+    `  - ${s.name}: ${s.cntStart.toLocaleString()} → ${s.cntEnd.toLocaleString()} companies (${s.pct > 0 ? '+' : ''}${s.pct}%)`
+  ).join('\n');
+
+  const formLines = Object.entries(data.formations).map(([y,v]) =>
+    `  - ${y}: ${v.toLocaleString()} formations / ${data.closures[y].toLocaleString()} closures`
   ).join('\n');
 
   return `You are a senior business analyst at Visma Group, a portfolio of 200+ B2B SaaS companies across Europe focused on ERP, accounting, and payroll software for SMEs.
@@ -1300,18 +1384,15 @@ You have just run a BigQuery analysis of the Danish company registry (source: vi
 
 PERIOD: ${data.period}
 COUNTRY: ${data.country}
-TOTAL ACTIVE COMPANIES 2024: ${data.totalActive2024}
-TOTAL ACTIVE COMPANIES 2021: ${data.totalActive2021}
-OVERALL MARKET GROWTH: +${data.overallGrowthPct}%
+TOTAL ACTIVE COMPANIES ${data.period.split('–')[1]}: ${data.totalActiveEnd}
+TOTAL ACTIVE COMPANIES ${data.period.split('–')[0]}: ${data.totalActiveStart}
+OVERALL MARKET GROWTH: ${data.overallGrowthPct > 0 ? '+' : ''}${data.overallGrowthPct}%
 
-SECTOR BREAKDOWN (company count growth 2021→2024):
+SECTOR BREAKDOWN (company count growth ${data.period}):
 ${sectorLines}
 
 FORMATION & CLOSURE TRENDS:
-  - 2021: ${data.formations['2021'].toLocaleString()} formations / ${data.closures['2021'].toLocaleString()} closures
-  - 2022: ${data.formations['2022'].toLocaleString()} formations / ${data.closures['2022'].toLocaleString()} closures
-  - 2023: ${data.formations['2023'].toLocaleString()} formations / ${data.closures['2023'].toLocaleString()} closures
-  - 2024: ${data.formations['2024'].toLocaleString()} formations / ${data.closures['2024'].toLocaleString()} closures
+${formLines}
 
 Generate exactly 6 business insights from this data, then an executive summary. Respond ONLY with valid JSON — no markdown, no preamble, no backticks.
 
@@ -1322,7 +1403,7 @@ Format:
       "type": "growth|risk|oppty|market|signal",
       "title": "Short punchy title (max 8 words)",
       "body": "2-3 sentence analytical insight grounded in the specific numbers above. Include specific figures. Be direct and actionable.",
-      "stat": "One key metric or takeaway (e.g. +18.4% in 4 years)"
+      "stat": "One key metric or takeaway"
     }
   ],
   "summary": "3-4 sentence executive summary of the Danish market from a Visma perspective. What does this mean for our product, sales, and growth strategy? Be specific and strategic."
@@ -1339,18 +1420,14 @@ async function generateInsights() {
 
   const data   = buildDataSummary();
   const prompt = buildPrompt(data);
+  document.getElementById('prompt-text').textContent = prompt.slice(0, 900) + '\n\n[… truncated for display]';
 
-  // Show the prompt being sent
-  document.getElementById('prompt-text').textContent = prompt.slice(0, 900) + '\n\n[… truncated for display — full prompt sent to API]';
-
-  // Scroll to insights
-  document.getElementById('insights-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Reset cards
   for (let i = 0; i < 6; i++) {
     document.getElementById(`it-${i}`).textContent = '';
     document.getElementById(`ib-${i}`).innerHTML = '<span class="cursor"></span>';
+    document.getElementById(`ic-${i}`).classList.remove('visible');
   }
+  document.getElementById('insights-summary').classList.remove('visible');
   document.getElementById('insights-summary-text').innerHTML = '<span class="cursor"></span>';
 
   try {
@@ -1364,79 +1441,63 @@ async function generateInsights() {
       })
     });
 
-    const json = await res.json();
-    const raw  = json.content?.[0]?.text || '';
-
-    // Parse JSON — strip any accidental backticks
-    const cleaned = raw.replace(/```json|```/g, '').trim();
-    const parsed  = JSON.parse(cleaned);
-
-    const TYPES = ['growth', 'risk', 'oppty', 'market', 'signal', 'oppty'];
+    const json   = await res.json();
+    const raw    = json.content?.[0]?.text || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const TYPES  = ['growth', 'risk', 'oppty', 'market', 'signal', 'oppty'];
 
     parsed.insights.forEach((ins, i) => {
       if (i >= 6) return;
       const card  = document.getElementById(`ic-${i}`);
       const title = document.getElementById(`it-${i}`);
       const body  = document.getElementById(`ib-${i}`);
-
-      // Update type class
       card.className = `insight-card ${TYPES[i]}`;
 
-      // Stream title character by character
+      // Stream title
       title.textContent = '';
       let ti = 0;
       const titleStr = ins.title || '';
-      const titleInterval = setInterval(() => {
-        if (ti < titleStr.length) {
-          title.textContent += titleStr[ti++];
-        } else {
-          clearInterval(titleInterval);
-        }
+      const titleIv = setInterval(() => {
+        if (ti < titleStr.length) title.textContent += titleStr[ti++];
+        else clearInterval(titleIv);
       }, 28);
 
-      // Stream body with slight delay
+      // Stream body
       setTimeout(() => {
         body.innerHTML = '<span class="cursor"></span>';
         let bi = 0;
         const bodyStr = (ins.body || '') + (ins.stat ? `\n\n→ ${ins.stat}` : '');
         const cursor  = body.querySelector('.cursor');
-        const bodyInterval = setInterval(() => {
+        const bodyIv  = setInterval(() => {
           if (bi < bodyStr.length) {
             const ch = bodyStr[bi++];
             cursor.before(ch === '\n' ? document.createElement('br') : document.createTextNode(ch));
-          } else {
-            clearInterval(bodyInterval);
-            cursor.remove();
-          }
+          } else { clearInterval(bodyIv); cursor.remove(); }
         }, 14);
       }, 200 + i * 120);
 
-      // Animate card in
       setTimeout(() => card.classList.add('visible'), 80 + i * 100);
     });
 
     // Stream summary
     setTimeout(() => {
-      const summaryEl = document.getElementById('insights-summary');
+      const summaryEl   = document.getElementById('insights-summary');
       const summaryText = document.getElementById('insights-summary-text');
       summaryEl.classList.add('visible');
       summaryText.innerHTML = '<span class="cursor"></span>';
-      const summaryStr = parsed.summary || '';
       let si = 0;
+      const str    = parsed.summary || '';
       const cursor = summaryText.querySelector('.cursor');
-      const sumInterval = setInterval(() => {
-        if (si < summaryStr.length) {
-          cursor.before(document.createTextNode(summaryStr[si++]));
-        } else {
-          clearInterval(sumInterval);
-          cursor.remove();
-        }
+      const sumIv  = setInterval(() => {
+        if (si < str.length) cursor.before(document.createTextNode(str[si++]));
+        else { clearInterval(sumIv); cursor.remove(); }
       }, 18);
     }, 600);
 
   } catch (err) {
     console.error('Claude API error:', err);
-    document.getElementById('ib-0').textContent = 'Error contacting Claude API. Check console.';
+    document.getElementById('ib-0').textContent = 'Error contacting Claude API. Check console for details.';
+    document.getElementById('ic-0').classList.add('visible');
   }
 
   btn.disabled = false;
@@ -1444,19 +1505,11 @@ async function generateInsights() {
   btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Regenerate Insights`;
 }
 
-function toggleSql(el) {
-  el.classList.toggle('open');
-  const panel = el.nextElementSibling;
-  panel.classList.toggle('open');
-}
-
-function setPeriod(btn, years) {
-  document.querySelectorAll('.ctrl-pill').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  // In a real implementation: re-query BQ with new date range and update charts
-  // For this demo: just show a console note
-  console.log(`[BQ Demo] Would re-run queries with BETWEEN ${2024-years+1} AND 2024`);
-}
+// ── BOOT ─────────────────────────────────────────────────
+buildCharts();
+refreshKPIs();
+refreshTable(ALL_YEARS[startIdx], ALL_YEARS[endIdx]);
 </script>
+
 </body>
 </html>
