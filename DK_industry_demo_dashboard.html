@@ -997,7 +997,7 @@ pivoted <span class="kw">AS</span> (
 
     <div class="insights-how">
       <span>💡</span>
-      <span><strong>How this works:</strong> Clicking the button serialises the chart data currently visible on this page and sends it to the Claude API. Claude reads the numbers and streams back contextual insights in real time — no backend required. With live BigQuery data, this runs automatically whenever the filters change.</span>
+      <span><strong>How this works:</strong> The button serialises the chart data and sends it to the Claude API, which streams back contextual insights in real time. <strong>Inside claude.ai — works automatically.</strong> On an external host (GitHub Pages etc.) — requires an API key or a backend proxy. The charts, SQL panels, and period selector all work without any key.</span>
     </div>
 
     <!-- Prompt preview (shown before generation) -->
@@ -1496,8 +1496,39 @@ async function generateInsights() {
 
   } catch (err) {
     console.error('Claude API error:', err);
-    document.getElementById('ib-0').textContent = 'Error contacting Claude API. Check console for details.';
-    document.getElementById('ic-0').classList.add('visible');
+
+    // Show a clear, friendly explanation rather than a cryptic error
+    const isAuthErr = err?.message?.includes('401') || err?.message?.includes('403');
+    const isCors    = err?.message?.includes('Failed to fetch') || err?.message?.includes('NetworkError');
+
+    const title = isCors || isAuthErr
+      ? 'API key required to generate insights'
+      : 'Could not reach Claude API';
+
+    const body = isCors || isAuthErr
+      ? 'This dashboard needs a Claude API key to generate live insights. When running inside claude.ai, authentication is handled automatically. When hosted externally (e.g. GitHub Pages), you need to add your own API key — or run a small backend proxy that holds it securely. The charts, SQL panels, and period selector all work without any key.'
+      : `Unexpected error: ${err?.message || 'unknown'}. Check the browser console for details.`;
+
+    const card = document.getElementById('ic-0');
+    card.className = 'insight-card market';
+    document.getElementById('it-0').textContent = title;
+    document.getElementById('ib-0').innerHTML   = body;
+    card.classList.add('visible');
+
+    // Show a helpful note in the summary block too
+    const summaryEl   = document.getElementById('insights-summary');
+    const summaryText = document.getElementById('insights-summary-text');
+    summaryEl.classList.add('visible');
+    summaryEl.style.background = '#1A2A1A';
+    summaryText.style.fontFamily = "'DM Sans', sans-serif";
+    summaryText.style.fontSize   = '14px';
+    summaryText.innerHTML = `
+      <div style="color:var(--gold);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">How to enable insights on external hosting</div>
+      <div style="color:rgba(255,255,255,0.7);line-height:1.7;font-size:13px;">
+        <strong style="color:#fff">Option 1 — Internal demo only:</strong> Add <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:3px;font-family:'DM Mono',monospace;">x-api-key: sk-ant-...</code> directly in the fetch headers. Key is visible in source — only use for trusted audiences.<br><br>
+        <strong style="color:#fff">Option 2 — Proper production:</strong> Deploy a small Cloud Function or Netlify Function that proxies the request. Your HTML calls your function, your function calls Anthropic with the key stored as an environment variable. Key never exposed to the browser.<br><br>
+        <strong style="color:#fff">Option 3 — Share as a file:</strong> Open in claude.ai directly. Auth is handled automatically and all features work.
+      </div>`;
   }
 
   btn.disabled = false;
