@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visma CSI – Architecture Diagram</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #F0F5FB;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 860px;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<svg viewBox="0 0 800 1175" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+
+  <rect width="800" height="1175" fill="#F0F5FB"/>
+
+  <!-- TITLE -->
+  <text x="400" y="36" text-anchor="middle" font-size="17" font-weight="800" fill="#0D2D57">Visma CSI — System Architecture</text>
+  <text x="400" y="54" text-anchor="middle" font-size="10" fill="#7A90A8" letter-spacing="1.5">CROSS-SELL INTELLIGENCE ENGINE</text>
+  <line x1="160" y1="64" x2="640" y2="64" stroke="#DDEAF7" stroke-width="1.5"/>
+
+  <!-- ══ 1 · DATA SOURCES ══ -->
+  <rect x="305" y="74" width="190" height="20" rx="10" fill="#0078BE"/>
+  <text x="400" y="88" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" letter-spacing="1.5">DATA SOURCES</text>
+  <text x="400" y="108" text-anchor="middle" font-size="10" fill="#9AB0C8" font-style="italic">Unstructured · scattered · not yet queryable</text>
+
+  <!-- Registries -->
+  <rect x="80" y="116" width="200" height="86" rx="10" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="80" y="116" width="4" height="86" rx="2" fill="#0078BE"/>
+  <text x="96" y="136" font-size="11" font-weight="700" fill="#0D2D57">Public Registries</text>
+  <text x="96" y="152" font-size="10" fill="#4A6A8A">Brønnøysund · KVK · CVR</text>
+  <text x="96" y="166" font-size="10" fill="#4A6A8A">+ other local registries</text>
+  <text x="96" y="181" font-size="10" fill="#7A90A8">Headcount · Revenue</text>
+  <text x="96" y="195" font-size="10" fill="#7A90A8">Entity structures</text>
+
+  <!-- Growth Signals -->
+  <rect x="300" y="116" width="200" height="86" rx="10" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="300" y="116" width="4" height="86" rx="2" fill="#7BBAE6"/>
+  <text x="316" y="136" font-size="11" font-weight="700" fill="#0D2D57">Growth Signals</text>
+  <text x="316" y="152" font-size="10" fill="#4A6A8A">LinkedIn · Job posts</text>
+  <text x="316" y="166" font-size="10" fill="#4A6A8A">PR · Media · Statements</text>
+  <text x="316" y="181" font-size="10" fill="#7A90A8">Headcount velocity</text>
+  <text x="316" y="195" font-size="10" fill="#7A90A8">Change agent signals</text>
+
+  <!-- BU Customer Lists -->
+  <rect x="520" y="116" width="200" height="86" rx="10" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="520" y="116" width="4" height="86" rx="2" fill="#1A8A52"/>
+  <text x="536" y="136" font-size="11" font-weight="700" fill="#0D2D57">BU Customer Lists</text>
+  <text x="536" y="152" font-size="10" fill="#4A6A8A">180+ Business Units</text>
+  <text x="536" y="166" font-size="10" fill="#4A6A8A">Current Visma Footprint</text>
+  <text x="536" y="181" font-size="10" fill="#7A90A8">ICP patterns</text>
+  <text x="536" y="195" font-size="10" fill="#7A90A8">OrgNo coverage</text>
+
+  <!-- Converging arrows -->
+  <line x1="180" y1="202" x2="370" y2="252" stroke="#AECCF0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="400" y1="202" x2="400" y2="252" stroke="#AECCF0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="620" y1="202" x2="430" y2="252" stroke="#AECCF0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="400,256 394,246 406,246" fill="#AECCF0"/>
+
+  <!-- ══ 2 · ENRICHMENT ══ -->
+  <rect x="230" y="262" width="340" height="20" rx="10" fill="#0D2D57"/>
+  <text x="400" y="276" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" letter-spacing="1.5">ENRICHMENT &amp; STRUCTURE LAYER</text>
+
+  <rect x="80" y="288" width="640" height="106" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+
+  <rect x="92" y="298" width="196" height="84" rx="8" fill="#E7F6EE"/>
+  <rect x="92" y="298" width="3" height="84" rx="1.5" fill="#1A8A52"/>
+  <text x="107" y="315" font-size="10" font-weight="700" fill="#0D2D57">OrgNo Anchor</text>
+  <text x="107" y="330" font-size="9.5" fill="#4A6A8A">Global key across all BUs</text>
+  <text x="107" y="344" font-size="9.5" fill="#4A6A8A">Visma Footprint mapping</text>
+  <text x="107" y="358" font-size="9.5" fill="#4A6A8A">ICP profile extraction</text>
+  <text x="107" y="373" font-size="9" fill="#7A90A8">Cross-BU view</text>
+
+  <rect x="300" y="298" width="196" height="84" rx="8" fill="#EAF3FB"/>
+  <rect x="300" y="298" width="3" height="84" rx="1.5" fill="#0078BE"/>
+  <text x="315" y="315" font-size="10" font-weight="700" fill="#0D2D57">AI Registry Enrichment</text>
+  <text x="315" y="330" font-size="9.5" fill="#4A6A8A">Official headcount &amp; revenue</text>
+  <text x="315" y="344" font-size="9.5" fill="#4A6A8A">Entity structures</text>
+  <text x="315" y="358" font-size="9.5" fill="#4A6A8A">Multi-entity detection</text>
+  <text x="315" y="373" font-size="9" fill="#7A90A8">AI-powered · automated</text>
+
+  <rect x="508" y="298" width="200" height="84" rx="8" fill="#EAF3FB"/>
+  <rect x="508" y="298" width="3" height="84" rx="1.5" fill="#7BBAE6"/>
+  <text x="523" y="315" font-size="10" font-weight="700" fill="#0D2D57">Signal Processing</text>
+  <text x="523" y="330" font-size="9.5" fill="#4A6A8A">Velocity scoring (3/6/12 mo)</text>
+  <text x="523" y="344" font-size="9.5" fill="#4A6A8A">Change Agent detection</text>
+  <text x="523" y="358" font-size="9.5" fill="#4A6A8A">News &amp; PR parsing</text>
+  <text x="523" y="373" font-size="9" fill="#7A90A8">Structured &amp; timestamped</text>
+
+  <line x1="400" y1="394" x2="400" y2="426" stroke="#0078BE" stroke-width="2"/>
+  <polygon points="400,430 394,420 406,420" fill="#0078BE"/>
+
+  <!-- ══ 3 · AFFINITY MATRIX ══ -->
+  <rect x="285" y="432" width="230" height="20" rx="10" fill="#0078BE"/>
+  <text x="400" y="446" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" letter-spacing="1.5">AFFINITY MATRIX</text>
+
+  <rect x="80" y="458" width="490" height="80" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="80" y="458" width="4" height="80" rx="2" fill="#D4730A"/>
+  <text x="98" y="478" font-size="11" font-weight="700" fill="#0D2D57">Product Bundle Mapping</text>
+  <text x="98" y="494" font-size="10" fill="#4A6A8A">Defines which product combinations make sense as cross-sell suggestions.</text>
+  <text x="98" y="509" font-size="10" fill="#4A6A8A">e.g. Accounting Core → HR/Payroll · Expense → E-Invoicing/Maventa</text>
+  <text x="98" y="526" font-size="9.5" fill="#7A90A8">Filters out combinations that don't make commercial sense.</text>
+
+  <rect x="584" y="458" width="176" height="80" rx="10" fill="#FEF9F0" stroke="#F0D8A8" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="672" y="477" text-anchor="middle" font-size="9.5" font-weight="700" fill="#B06010">Human Input Required</text>
+  <text x="672" y="493" text-anchor="middle" font-size="9.5" fill="#B06010">BA Directors</text>
+  <text x="672" y="508" text-anchor="middle" font-size="9.5" fill="#B06010">Segment Directors</text>
+  <text x="672" y="524" text-anchor="middle" font-size="9" fill="#9A6030">Define what to suggest</text>
+  <text x="672" y="537" text-anchor="middle" font-size="9" fill="#9A6030">and what to exclude</text>
+  <line x1="584" y1="498" x2="572" y2="498" stroke="#D4730A" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <polygon points="573,498 581,494 581,502" fill="#D4730A"/>
+
+  <line x1="400" y1="538" x2="400" y2="570" stroke="#0078BE" stroke-width="2"/>
+  <polygon points="400,574 394,564 406,564" fill="#0078BE"/>
+
+  <!-- ══ 4 · PROPENSITY SCORING ══ -->
+  <rect x="230" y="576" width="340" height="20" rx="10" fill="#0078BE"/>
+  <text x="400" y="590" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" letter-spacing="1.5">PROPENSITY SCORING MODEL</text>
+
+  <rect x="80" y="602" width="640" height="58" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="80" y="602" width="4" height="58" rx="2" fill="#0078BE"/>
+  <text x="98" y="620" font-size="10" fill="#4A6A8A">Scores companies against cross-sell readiness criteria:</text>
+  <rect x="98"  y="626" width="140" height="24" rx="7" fill="#EAF3FB"/>
+  <text x="168" y="642" text-anchor="middle" font-size="9" font-weight="700" fill="#0078BE">Headcount milestone</text>
+  <rect x="248" y="626" width="128" height="24" rx="7" fill="#EAF3FB"/>
+  <text x="312" y="642" text-anchor="middle" font-size="9" font-weight="700" fill="#0078BE">Expansion event</text>
+  <rect x="386" y="626" width="118" height="24" rx="7" fill="#EAF3FB"/>
+  <text x="445" y="642" text-anchor="middle" font-size="9" font-weight="700" fill="#0078BE">Financial event</text>
+  <rect x="514" y="626" width="192" height="24" rx="7" fill="#EAF3FB"/>
+  <text x="610" y="642" text-anchor="middle" font-size="9" font-weight="700" fill="#0078BE">Missing product link</text>
+
+  <line x1="400" y1="660" x2="400" y2="692" stroke="#0078BE" stroke-width="2"/>
+  <polygon points="400,696 394,686 406,686" fill="#0078BE"/>
+
+  <!-- ══ 5 · ASSIGNMENT ENGINE ══ -->
+  <rect x="265" y="698" width="270" height="20" rx="10" fill="#0078BE"/>
+  <text x="400" y="712" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" letter-spacing="1.5">ASSIGNMENT ENGINE</text>
+
+  <rect x="80" y="724" width="640" height="58" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="80" y="724" width="4" height="58" rx="2" fill="#D4730A"/>
+  <text x="98" y="742" font-size="10" fill="#4A6A8A">Assigns a weekly batch of leads to each BU:</text>
+  <rect x="98"  y="748" width="142" height="24" rx="7" fill="#FEF2E0"/>
+  <text x="169" y="764" text-anchor="middle" font-size="9" font-weight="700" fill="#B06010">50 leads / BU / week</text>
+  <rect x="250" y="748" width="150" height="24" rx="7" fill="#FEF2E0"/>
+  <text x="325" y="764" text-anchor="middle" font-size="9" font-weight="700" fill="#B06010">Single-BU ownership</text>
+  <rect x="410" y="748" width="120" height="24" rx="7" fill="#FEF2E0"/>
+  <text x="470" y="764" text-anchor="middle" font-size="9" font-weight="700" fill="#B06010">90-day lock</text>
+  <rect x="540" y="748" width="166" height="24" rx="7" fill="#FEF2E0"/>
+  <text x="623" y="764" text-anchor="middle" font-size="9" font-weight="700" fill="#B06010">Group priority list</text>
+
+  <line x1="400" y1="782" x2="400" y2="814" stroke="#0078BE" stroke-width="2"/>
+  <polygon points="400,818 394,808 406,808" fill="#0078BE"/>
+
+  <!-- ══ 6 · BATTLECARD GENERATOR ══ -->
+  <rect x="230" y="820" width="340" height="20" rx="10" fill="#7B4FD8"/>
+  <text x="400" y="834" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" letter-spacing="1.5">AI BATTLECARD GENERATOR</text>
+
+  <rect x="80" y="846" width="640" height="58" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="80" y="846" width="4" height="58" rx="2" fill="#7B4FD8"/>
+  <text x="98" y="864" font-size="10" fill="#4A6A8A">Generates per-lead context using AI — attached to each assigned lead:</text>
+  <rect x="98"  y="870" width="178" height="24" rx="7" fill="#F0EAFF"/>
+  <text x="187" y="886" text-anchor="middle" font-size="9" font-weight="700" fill="#7B4FD8">"Why Now" context</text>
+  <rect x="286" y="870" width="178" height="24" rx="7" fill="#F0EAFF"/>
+  <text x="375" y="886" text-anchor="middle" font-size="9" font-weight="700" fill="#7B4FD8">Visma-to-Visma synergy</text>
+  <rect x="474" y="870" width="232" height="24" rx="7" fill="#F0EAFF"/>
+  <text x="590" y="886" text-anchor="middle" font-size="9" font-weight="700" fill="#7B4FD8">Next Best Action script</text>
+
+  <!-- Split arrows -->
+  <line x1="400" y1="904" x2="400" y2="928" stroke="#0078BE" stroke-width="2"/>
+  <line x1="400" y1="928" x2="222" y2="928" stroke="#0078BE" stroke-width="2"/>
+  <line x1="400" y1="928" x2="624" y2="928" stroke="#0078BE" stroke-width="2"/>
+  <line x1="222" y1="928" x2="222" y2="946" stroke="#0078BE" stroke-width="2"/>
+  <line x1="624" y1="928" x2="624" y2="946" stroke="#0078BE" stroke-width="2"/>
+  <polygon points="222,950 216,940 228,940" fill="#0078BE"/>
+  <polygon points="624,950 618,940 630,940" fill="#0078BE"/>
+
+  <!-- ══ 7 · DELIVERY ══ -->
+  <!-- Growth Portal -->
+  <rect x="80" y="952" width="462" height="118" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="80" y="952" width="4" height="118" rx="2" fill="#0078BE"/>
+  <text x="98" y="972" font-size="11" font-weight="700" fill="#0D2D57">Growth Portal</text>
+  <text x="98" y="988" font-size="10" fill="#4A6A8A">Internal web app — review AI battlecards and manage lead pipeline:</text>
+  <rect x="98"  y="996" width="76" height="22" rx="11" fill="#EAF3FB"/>
+  <text x="136" y="1011" text-anchor="middle" font-size="9" font-weight="700" fill="#0078BE">Contacted</text>
+  <text x="180" y="1011" font-size="13" fill="#AECCF0">→</text>
+  <rect x="192" y="996" width="82" height="22" rx="11" fill="#EAF3FB"/>
+  <text x="233" y="1011" text-anchor="middle" font-size="9" font-weight="700" fill="#0078BE">Negotiating</text>
+  <text x="280" y="1011" font-size="13" fill="#AECCF0">→</text>
+  <rect x="292" y="996" width="82" height="22" rx="11" fill="#E7F6EE"/>
+  <text x="333" y="1011" text-anchor="middle" font-size="9" font-weight="700" fill="#1A7A44">Closed Won</text>
+  <text x="380" y="1011" font-size="13" fill="#AECCF0">→</text>
+  <rect x="392" y="996" width="82" height="22" rx="11" fill="#FDECEA"/>
+  <text x="433" y="1011" text-anchor="middle" font-size="9" font-weight="700" fill="#C0392B">Closed Lost</text>
+  <text x="98" y="1036" font-size="9.5" fill="#7A90A8">Closed Won = CSI-attributed ARR tracked in VDL</text>
+  <text x="98" y="1052" font-size="9.5" fill="#7A90A8">Closed Lost = signal for model retraining</text>
+
+  <!-- Slack Alerts -->
+  <rect x="556" y="952" width="204" height="118" rx="12" fill="#fff" stroke="#DDEAF7" stroke-width="1.5"/>
+  <rect x="556" y="952" width="4" height="118" rx="2" fill="#4A154B"/>
+  <text x="574" y="972" font-size="11" font-weight="700" fill="#0D2D57">Slack Alerts</text>
+  <text x="574" y="988" font-size="10" fill="#4A6A8A">Weekly · Monday AM</text>
+  <text x="574" y="1003" font-size="10" fill="#4A6A8A">New high-propensity</text>
+  <text x="574" y="1018" font-size="10" fill="#4A6A8A">leads per BU</text>
+  <text x="574" y="1038" font-size="10" fill="#7A90A8">Sent to Sales Managers</text>
+  <text x="574" y="1053" font-size="10" fill="#7A90A8">Per-BU digest</text>
+
+  <!-- ══ FEEDBACK LOOP ══ -->
+  <path d="M 80,1010 L 38,1010 L 38,631 L 79,631" fill="none" stroke="#C0392B" stroke-width="2" stroke-dasharray="5,3"/>
+  <polygon points="80,631 70,625 70,637" fill="#C0392B"/>
+  <text transform="translate(26,820) rotate(-90)" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C0392B" letter-spacing="1">FEEDBACK LOOP</text>
+
+  <!-- LEGEND -->
+  <line x1="80"  y1="1116" x2="112" y2="1116" stroke="#0078BE" stroke-width="2"/>
+  <polygon points="112,1116 105,1112 105,1120" fill="#0078BE"/>
+  <text x="120" y="1120" font-size="10" fill="#4A6A8A">Main data flow</text>
+
+  <line x1="214" y1="1116" x2="246" y2="1116" stroke="#AECCF0" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="246,1116 239,1112 239,1120" fill="#AECCF0"/>
+  <text x="254" y="1120" font-size="10" fill="#4A6A8A">Enrichment feed</text>
+
+  <line x1="348" y1="1116" x2="380" y2="1116" stroke="#C0392B" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="388" y="1120" font-size="10" fill="#4A6A8A">Feedback loop</text>
+
+  <line x1="480" y1="1116" x2="500" y2="1116" stroke="#D4730A" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="508" y="1120" font-size="10" fill="#4A6A8A">Human input</text>
+
+  <text x="750" y="1160" text-anchor="end" font-size="13" font-weight="800" fill="#0D2D57">Visma</text>
+
+</svg>
+</div>
+</body>
+</html>
