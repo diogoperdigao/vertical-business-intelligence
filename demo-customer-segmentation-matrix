@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Segmentation Matrix · Project Bear</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.5/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #EEF1F7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    table { border-collapse: separate; border-spacing: 3px; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // ── Colours ──────────────────────────────────────────────────────────────
+    const ENTITY_COLORS = {
+      "BV (Ltd.)":     "#1A2B6B",
+      "Sole Trader":   "#00B0F0",
+      "Partnership":   "#3CB878",
+      "Other/Unknown": "#B8C1CC",
+    };
+
+    const PROD_COLORS = {
+      "InFine only":     "#1A2B6B",
+      "VPC only":        "#006CB7",
+      "Radar only":      "#00B0F0",
+      "MLE only":        "#3CB878",
+      "Studio only":     "#9B59B6",
+      "VPC + InFine":    "#E8690B",
+      "VPC + MLE":       "#C0392B",
+      "VPC + Studio":    "#8E44AD",
+      "InFine + Radar":  "#16A085",
+      "Other 2-product": "#7F8C8D",
+      "3+ products":     "#2C3E50",
+    };
+
+    // ── Raw data ─────────────────────────────────────────────────────────────
+    const RAW = [
+      {p:"3+ products",e:"1 (Solo)",en:"BV (Ltd.)",n:11},{p:"3+ products",e:"1 (Solo)",en:"Sole Trader",n:5},
+      {p:"3+ products",e:"11–50 (Mid)",en:"BV (Ltd.)",n:13},{p:"3+ products",e:"11–50 (Mid)",en:"Partnership",n:10},
+      {p:"3+ products",e:"2–5 (Micro)",en:"BV (Ltd.)",n:17},{p:"3+ products",e:"2–5 (Micro)",en:"Partnership",n:9},{p:"3+ products",e:"2–5 (Micro)",en:"Sole Trader",n:6},
+      {p:"3+ products",e:"51+ (Large)",en:"BV (Ltd.)",n:3},{p:"3+ products",e:"51+ (Large)",en:"Partnership",n:2},
+      {p:"3+ products",e:"6–10 (Small)",en:"BV (Ltd.)",n:20},{p:"3+ products",e:"6–10 (Small)",en:"Partnership",n:6},{p:"3+ products",e:"6–10 (Small)",en:"Sole Trader",n:1},
+      {p:"3+ products",e:"Unknown",en:"BV (Ltd.)",n:7},{p:"3+ products",e:"Unknown",en:"Partnership",n:1},{p:"3+ products",e:"Unknown",en:"Sole Trader",n:2},
+      {p:"InFine + Radar",e:"1 (Solo)",en:"BV (Ltd.)",n:3},{p:"InFine + Radar",e:"1 (Solo)",en:"Sole Trader",n:16},
+      {p:"InFine + Radar",e:"11–50 (Mid)",en:"BV (Ltd.)",n:2},{p:"InFine + Radar",e:"11–50 (Mid)",en:"Partnership",n:1},{p:"InFine + Radar",e:"11–50 (Mid)",en:"Sole Trader",n:1},
+      {p:"InFine + Radar",e:"2–5 (Micro)",en:"BV (Ltd.)",n:9},{p:"InFine + Radar",e:"2–5 (Micro)",en:"Partnership",n:12},{p:"InFine + Radar",e:"2–5 (Micro)",en:"Sole Trader",n:8},
+      {p:"InFine + Radar",e:"6–10 (Small)",en:"BV (Ltd.)",n:4},{p:"InFine + Radar",e:"6–10 (Small)",en:"Partnership",n:5},{p:"InFine + Radar",e:"6–10 (Small)",en:"Sole Trader",n:1},
+      {p:"InFine + Radar",e:"Unknown",en:"Partnership",n:2},
+      {p:"InFine only",e:"1 (Solo)",en:"BV (Ltd.)",n:45},{p:"InFine only",e:"1 (Solo)",en:"Other/Unknown",n:1},{p:"InFine only",e:"1 (Solo)",en:"Partnership",n:5},{p:"InFine only",e:"1 (Solo)",en:"Sole Trader",n:304},
+      {p:"InFine only",e:"11–50 (Mid)",en:"BV (Ltd.)",n:12},{p:"InFine only",e:"11–50 (Mid)",en:"Partnership",n:4},
+      {p:"InFine only",e:"2–5 (Micro)",en:"BV (Ltd.)",n:109},{p:"InFine only",e:"2–5 (Micro)",en:"Other/Unknown",n:3},{p:"InFine only",e:"2–5 (Micro)",en:"Partnership",n:135},{p:"InFine only",e:"2–5 (Micro)",en:"Sole Trader",n:81},
+      {p:"InFine only",e:"51+ (Large)",en:"BV (Ltd.)",n:1},
+      {p:"InFine only",e:"6–10 (Small)",en:"BV (Ltd.)",n:25},{p:"InFine only",e:"6–10 (Small)",en:"Other/Unknown",n:1},{p:"InFine only",e:"6–10 (Small)",en:"Partnership",n:18},
+      {p:"InFine only",e:"Unknown",en:"BV (Ltd.)",n:10},{p:"InFine only",e:"Unknown",en:"Other/Unknown",n:1},{p:"InFine only",e:"Unknown",en:"Partnership",n:4},{p:"InFine only",e:"Unknown",en:"Sole Trader",n:22},
+      {p:"MLE only",e:"1 (Solo)",en:"BV (Ltd.)",n:26},{p:"MLE only",e:"1 (Solo)",en:"Other/Unknown",n:1},{p:"MLE only",e:"1 (Solo)",en:"Partnership",n:4},{p:"MLE only",e:"1 (Solo)",en:"Sole Trader",n:43},
+      {p:"MLE only",e:"11–50 (Mid)",en:"BV (Ltd.)",n:10},{p:"MLE only",e:"11–50 (Mid)",en:"Other/Unknown",n:1},{p:"MLE only",e:"11–50 (Mid)",en:"Partnership",n:7},
+      {p:"MLE only",e:"2–5 (Micro)",en:"BV (Ltd.)",n:44},{p:"MLE only",e:"2–5 (Micro)",en:"Partnership",n:16},{p:"MLE only",e:"2–5 (Micro)",en:"Sole Trader",n:9},
+      {p:"MLE only",e:"51+ (Large)",en:"Partnership",n:1},
+      {p:"MLE only",e:"6–10 (Small)",en:"BV (Ltd.)",n:5},{p:"MLE only",e:"6–10 (Small)",en:"Partnership",n:3},{p:"MLE only",e:"6–10 (Small)",en:"Sole Trader",n:1},
+      {p:"MLE only",e:"Unknown",en:"BV (Ltd.)",n:9},{p:"MLE only",e:"Unknown",en:"Partnership",n:1},{p:"MLE only",e:"Unknown",en:"Sole Trader",n:5},
+      {p:"Other 2-product",e:"1 (Solo)",en:"BV (Ltd.)",n:6},{p:"Other 2-product",e:"1 (Solo)",en:"Sole Trader",n:3},
+      {p:"Other 2-product",e:"11–50 (Mid)",en:"BV (Ltd.)",n:12},{p:"Other 2-product",e:"11–50 (Mid)",en:"Partnership",n:2},
+      {p:"Other 2-product",e:"2–5 (Micro)",en:"BV (Ltd.)",n:20},{p:"Other 2-product",e:"2–5 (Micro)",en:"Partnership",n:13},{p:"Other 2-product",e:"2–5 (Micro)",en:"Sole Trader",n:9},
+      {p:"Other 2-product",e:"51+ (Large)",en:"BV (Ltd.)",n:2},
+      {p:"Other 2-product",e:"6–10 (Small)",en:"BV (Ltd.)",n:16},{p:"Other 2-product",e:"6–10 (Small)",en:"Other/Unknown",n:1},{p:"Other 2-product",e:"6–10 (Small)",en:"Partnership",n:3},{p:"Other 2-product",e:"6–10 (Small)",en:"Sole Trader",n:1},
+      {p:"Other 2-product",e:"Unknown",en:"BV (Ltd.)",n:2},{p:"Other 2-product",e:"Unknown",en:"Partnership",n:1},{p:"Other 2-product",e:"Unknown",en:"Sole Trader",n:1},
+      {p:"Radar only",e:"1 (Solo)",en:"BV (Ltd.)",n:17},{p:"Radar only",e:"1 (Solo)",en:"Sole Trader",n:19},
+      {p:"Radar only",e:"11–50 (Mid)",en:"BV (Ltd.)",n:10},{p:"Radar only",e:"11–50 (Mid)",en:"Partnership",n:5},
+      {p:"Radar only",e:"2–5 (Micro)",en:"BV (Ltd.)",n:53},{p:"Radar only",e:"2–5 (Micro)",en:"Partnership",n:30},{p:"Radar only",e:"2–5 (Micro)",en:"Sole Trader",n:28},
+      {p:"Radar only",e:"6–10 (Small)",en:"BV (Ltd.)",n:32},{p:"Radar only",e:"6–10 (Small)",en:"Partnership",n:15},{p:"Radar only",e:"6–10 (Small)",en:"Sole Trader",n:7},
+      {p:"Radar only",e:"Unknown",en:"BV (Ltd.)",n:5},{p:"Radar only",e:"Unknown",en:"Partnership",n:2},{p:"Radar only",e:"Unknown",en:"Sole Trader",n:3},
+      {p:"Studio only",e:"1 (Solo)",en:"BV (Ltd.)",n:13},{p:"Studio only",e:"1 (Solo)",en:"Other/Unknown",n:1},{p:"Studio only",e:"1 (Solo)",en:"Partnership",n:2},{p:"Studio only",e:"1 (Solo)",en:"Sole Trader",n:32},
+      {p:"Studio only",e:"11–50 (Mid)",en:"BV (Ltd.)",n:10},{p:"Studio only",e:"11–50 (Mid)",en:"Partnership",n:3},{p:"Studio only",e:"11–50 (Mid)",en:"Sole Trader",n:1},
+      {p:"Studio only",e:"2–5 (Micro)",en:"BV (Ltd.)",n:18},{p:"Studio only",e:"2–5 (Micro)",en:"Other/Unknown",n:1},{p:"Studio only",e:"2–5 (Micro)",en:"Partnership",n:14},{p:"Studio only",e:"2–5 (Micro)",en:"Sole Trader",n:9},
+      {p:"Studio only",e:"51+ (Large)",en:"BV (Ltd.)",n:1},
+      {p:"Studio only",e:"6–10 (Small)",en:"BV (Ltd.)",n:3},{p:"Studio only",e:"6–10 (Small)",en:"Partnership",n:3},{p:"Studio only",e:"6–10 (Small)",en:"Sole Trader",n:1},
+      {p:"Studio only",e:"Unknown",en:"BV (Ltd.)",n:5},{p:"Studio only",e:"Unknown",en:"Partnership",n:1},{p:"Studio only",e:"Unknown",en:"Sole Trader",n:2},
+      {p:"VPC + InFine",e:"1 (Solo)",en:"BV (Ltd.)",n:34},{p:"VPC + InFine",e:"1 (Solo)",en:"Other/Unknown",n:2},{p:"VPC + InFine",e:"1 (Solo)",en:"Partnership",n:4},{p:"VPC + InFine",e:"1 (Solo)",en:"Sole Trader",n:129},
+      {p:"VPC + InFine",e:"11–50 (Mid)",en:"BV (Ltd.)",n:26},{p:"VPC + InFine",e:"11–50 (Mid)",en:"Partnership",n:16},
+      {p:"VPC + InFine",e:"2–5 (Micro)",en:"BV (Ltd.)",n:96},{p:"VPC + InFine",e:"2–5 (Micro)",en:"Other/Unknown",n:1},{p:"VPC + InFine",e:"2–5 (Micro)",en:"Partnership",n:80},{p:"VPC + InFine",e:"2–5 (Micro)",en:"Sole Trader",n:30},
+      {p:"VPC + InFine",e:"51+ (Large)",en:"BV (Ltd.)",n:1},
+      {p:"VPC + InFine",e:"6–10 (Small)",en:"BV (Ltd.)",n:34},{p:"VPC + InFine",e:"6–10 (Small)",en:"Partnership",n:19},{p:"VPC + InFine",e:"6–10 (Small)",en:"Sole Trader",n:3},
+      {p:"VPC + InFine",e:"Unknown",en:"BV (Ltd.)",n:22},{p:"VPC + InFine",e:"Unknown",en:"Partnership",n:4},{p:"VPC + InFine",e:"Unknown",en:"Sole Trader",n:2},
+      {p:"VPC + MLE",e:"1 (Solo)",en:"BV (Ltd.)",n:4},{p:"VPC + MLE",e:"1 (Solo)",en:"Partnership",n:1},{p:"VPC + MLE",e:"1 (Solo)",en:"Sole Trader",n:2},
+      {p:"VPC + MLE",e:"11–50 (Mid)",en:"BV (Ltd.)",n:12},{p:"VPC + MLE",e:"11–50 (Mid)",en:"Partnership",n:5},
+      {p:"VPC + MLE",e:"2–5 (Micro)",en:"BV (Ltd.)",n:16},{p:"VPC + MLE",e:"2–5 (Micro)",en:"Partnership",n:7},{p:"VPC + MLE",e:"2–5 (Micro)",en:"Sole Trader",n:4},
+      {p:"VPC + MLE",e:"51+ (Large)",en:"BV (Ltd.)",n:6},{p:"VPC + MLE",e:"51+ (Large)",en:"Partnership",n:2},
+      {p:"VPC + MLE",e:"6–10 (Small)",en:"BV (Ltd.)",n:8},{p:"VPC + MLE",e:"6–10 (Small)",en:"Partnership",n:2},
+      {p:"VPC + MLE",e:"Unknown",en:"BV (Ltd.)",n:5},{p:"VPC + MLE",e:"Unknown",en:"Partnership",n:1},{p:"VPC + MLE",e:"Unknown",en:"Sole Trader",n:2},
+      {p:"VPC + Studio",e:"1 (Solo)",en:"BV (Ltd.)",n:3},{p:"VPC + Studio",e:"1 (Solo)",en:"Sole Trader",n:7},
+      {p:"VPC + Studio",e:"11–50 (Mid)",en:"BV (Ltd.)",n:13},{p:"VPC + Studio",e:"11–50 (Mid)",en:"Other/Unknown",n:1},{p:"VPC + Studio",e:"11–50 (Mid)",en:"Partnership",n:1},
+      {p:"VPC + Studio",e:"2–5 (Micro)",en:"BV (Ltd.)",n:13},{p:"VPC + Studio",e:"2–5 (Micro)",en:"Partnership",n:6},{p:"VPC + Studio",e:"2–5 (Micro)",en:"Sole Trader",n:3},
+      {p:"VPC + Studio",e:"51+ (Large)",en:"BV (Ltd.)",n:2},{p:"VPC + Studio",e:"51+ (Large)",en:"Partnership",n:2},
+      {p:"VPC + Studio",e:"6–10 (Small)",en:"BV (Ltd.)",n:9},{p:"VPC + Studio",e:"6–10 (Small)",en:"Partnership",n:2},{p:"VPC + Studio",e:"6–10 (Small)",en:"Sole Trader",n:1},
+      {p:"VPC + Studio",e:"Unknown",en:"BV (Ltd.)",n:3},
+      {p:"VPC only",e:"1 (Solo)",en:"BV (Ltd.)",n:52},{p:"VPC only",e:"1 (Solo)",en:"Other/Unknown",n:1},{p:"VPC only",e:"1 (Solo)",en:"Partnership",n:14},{p:"VPC only",e:"1 (Solo)",en:"Sole Trader",n:156},
+      {p:"VPC only",e:"11–50 (Mid)",en:"BV (Ltd.)",n:55},{p:"VPC only",e:"11–50 (Mid)",en:"Other/Unknown",n:4},{p:"VPC only",e:"11–50 (Mid)",en:"Partnership",n:36},{p:"VPC only",e:"11–50 (Mid)",en:"Sole Trader",n:1},
+      {p:"VPC only",e:"2–5 (Micro)",en:"BV (Ltd.)",n:178},{p:"VPC only",e:"2–5 (Micro)",en:"Other/Unknown",n:1},{p:"VPC only",e:"2–5 (Micro)",en:"Partnership",n:66},{p:"VPC only",e:"2–5 (Micro)",en:"Sole Trader",n:22},
+      {p:"VPC only",e:"51+ (Large)",en:"BV (Ltd.)",n:5},{p:"VPC only",e:"51+ (Large)",en:"Other/Unknown",n:1},{p:"VPC only",e:"51+ (Large)",en:"Partnership",n:5},
+      {p:"VPC only",e:"6–10 (Small)",en:"BV (Ltd.)",n:50},{p:"VPC only",e:"6–10 (Small)",en:"Other/Unknown",n:2},{p:"VPC only",e:"6–10 (Small)",en:"Partnership",n:18},{p:"VPC only",e:"6–10 (Small)",en:"Sole Trader",n:2},
+      {p:"VPC only",e:"Unknown",en:"BV (Ltd.)",n:46},{p:"VPC only",e:"Unknown",en:"Partnership",n:18},{p:"VPC only",e:"Unknown",en:"Sole Trader",n:29},
+    ];
+
+    const EMP_BANDS    = ["1 (Solo)","2–5 (Micro)","6–10 (Small)","11–50 (Mid)","51+ (Large)","Unknown"];
+    const ENTITIES     = ["BV (Ltd.)","Sole Trader","Partnership","Other/Unknown"];
+    const SINGLE_PRODS = ["InFine only","VPC only","Radar only","MLE only","Studio only"];
+    const MULTI_PRODS  = ["VPC + InFine","VPC + MLE","VPC + Studio","InFine + Radar","Other 2-product","3+ products"];
+    const ALL_PRODS    = [...SINGLE_PRODS, ...MULTI_PRODS];
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function interpColor(t) {
+      return `rgb(${Math.round(255+(26-255)*t)},${Math.round(255+(43-255)*t)},${Math.round(255+(107-255)*t)})`;
+    }
+
+    function buildCells() {
+      const cells = {};
+      RAW.forEach(({ p, e, en, n }) => {
+        const k = `${p}||${e}`;
+        if (!cells[k]) cells[k] = { total:0, byEntity:{} };
+        cells[k].total += n;
+        cells[k].byEntity[en] = (cells[k].byEntity[en] || 0) + n;
+      });
+      return cells;
+    }
+
+    function MiniBar({ byEntity, total }) {
+      return (
+        <div style={{ display:"flex", height:3, borderRadius:2, overflow:"hidden", marginTop:3 }}>
+          {ENTITIES.map(en => {
+            const pct = ((byEntity[en]||0)/total)*100;
+            return pct > 0 ? <div key={en} style={{ width:`${pct}%`, background:ENTITY_COLORS[en] }} /> : null;
+          })}
+        </div>
+      );
+    }
+
+    // ── SVG Stacked Bar Chart (no external dependency) ───────────────────────
+    function StackedBarChart({ data }) {
+      const [tip, setTip] = useState(null);
+      const rowH   = 24;
+      const labelW = 120;
+      const chartW = 520;
+      const padR   = 60;
+      const height = data.length * rowH + 30;
+      const maxVal = Math.max(...data.map(d => ENTITIES.reduce((s, en) => s + (d[en]||0), 0)));
+
+      return (
+        <div style={{ position:"relative", overflowX:"auto" }}>
+          <svg width={labelW + chartW + padR} height={height} style={{ display:"block" }}>
+            {/* Y axis labels */}
+            {data.map((d, i) => (
+              <text key={d.prod} x={labelW - 8} y={30 + i*rowH + rowH/2 + 4}
+                textAnchor="end" fontSize={11} fill="#1A2B6B" fontWeight="600">{d.prod}</text>
+            ))}
+            {/* Bars */}
+            {data.map((d, i) => {
+              const total = ENTITIES.reduce((s, en) => s + (d[en]||0), 0);
+              let x = labelW;
+              return (
+                <g key={d.prod}>
+                  {ENTITIES.map(en => {
+                    const val = d[en] || 0;
+                    if (!val) return null;
+                    const w = (val / maxVal) * chartW;
+                    const rect = (
+                      <rect key={en} x={x} y={30 + i*rowH + 2} width={w} height={rowH - 4}
+                        fill={ENTITY_COLORS[en]} rx={en==="Other/Unknown" ? 2 : 0}
+                        onMouseEnter={ev => setTip({ x: ev.clientX, y: ev.clientY, prod:d.prod, en, val, total })}
+                        onMouseLeave={() => setTip(null)}
+                        style={{ cursor:"pointer" }}
+                      />
+                    );
+                    x += w;
+                    return rect;
+                  })}
+                  {/* total label */}
+                  <text x={x + 6} y={30 + i*rowH + rowH/2 + 4} fontSize={10} fill="#888">{total}</text>
+                </g>
+              );
+            })}
+            {/* X axis ticks */}
+            {[0, 0.25, 0.5, 0.75, 1].map(t => {
+              const x = labelW + t * chartW;
+              return (
+                <g key={t}>
+                  <line x1={x} y1={28} x2={x} y2={height} stroke="#E8EDF5" strokeWidth={1} />
+                  <text x={x} y={20} textAnchor="middle" fontSize={9} fill="#AAA">{Math.round(t*maxVal)}</text>
+                </g>
+              );
+            })}
+          </svg>
+          {/* Tooltip */}
+          {tip && (
+            <div style={{
+              position:"fixed", left:tip.x+12, top:tip.y-10, pointerEvents:"none",
+              background:"white", borderRadius:6, padding:"7px 10px",
+              boxShadow:"0 2px 10px rgba(0,0,0,0.15)", fontSize:11, zIndex:999
+            }}>
+              <strong style={{ color:"#1A2B6B" }}>{tip.prod}</strong><br/>
+              <span style={{ display:"flex", alignItems:"center", gap:4, marginTop:3 }}>
+                <span style={{ width:8, height:8, borderRadius:1, background:ENTITY_COLORS[tip.en], display:"inline-block" }}/>
+                {tip.en}: <strong>{tip.val}</strong> ({Math.round(tip.val/tip.total*100)}%)
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── Main app ─────────────────────────────────────────────────────────────
+    function SegMatrix() {
+      const [hovered, setHovered] = useState(null);
+
+      const cells  = buildCells();
+      const maxVal = Math.max(...Object.values(cells).map(c => c.total));
+
+      const rowTotal = prod => EMP_BANDS.reduce((s,e) => s + (cells[`${prod}||${e}`]?.total||0), 0);
+
+      const total   = RAW.reduce((s,d) => s+d.n, 0);
+      const single  = SINGLE_PRODS.reduce((s,p) => s+rowTotal(p), 0);
+      const multi   = MULTI_PRODS.reduce((s,p) => s+rowTotal(p), 0);
+      const soloEmp = ALL_PRODS.reduce((s,p) => s+(cells[`${p}||1 (Solo)`]?.total||0), 0);
+
+      const barData = ALL_PRODS.map(prod => {
+        const row = { prod: prod.replace(" only","").replace("Other 2-product","Other 2-prod.").replace("3+ products","3+ prod.") };
+        ENTITIES.forEach(en => { row[en] = RAW.filter(d=>d.p===prod&&d.en===en).reduce((s,d)=>s+d.n,0); });
+        return row;
+      });
+
+      const [hovProd, hovEmp] = hovered ? hovered.split("||") : [];
+      const hovCell = hovered ? cells[hovered] : null;
+
+      return (
+        <div style={{ background:"#EEF1F7", minHeight:"100vh", padding:"20px 22px" }}>
+
+          {/* Header */}
+          <div style={{ background:"linear-gradient(135deg,#1A2B6B,#243A90)", color:"white", padding:"20px 26px", borderRadius:10, marginBottom:14, display:"flex", justifyContent:"space-between", alignItems:"flex-end" }}>
+            <div>
+              <div style={{ fontSize:10, letterSpacing:"1.5px", textTransform:"uppercase", opacity:0.55, marginBottom:5 }}>Project Bear · Visionplanner NL · GDB-matched</div>
+              <div style={{ fontSize:22, fontWeight:700 }}>Customer Segmentation Matrix</div>
+              <div style={{ fontSize:12, opacity:0.7, marginTop:3 }}>Product holding × Headcount band × Entity type</div>
+            </div>
+            <div style={{ textAlign:"right" }}>
+              <div style={{ fontSize:34, fontWeight:800, lineHeight:1 }}>{total.toLocaleString()}</div>
+              <div style={{ fontSize:10, opacity:0.55, textTransform:"uppercase", letterSpacing:"0.5px", marginTop:2 }}>companies</div>
+            </div>
+          </div>
+
+          {/* KPI tiles */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:14 }}>
+            {[
+              { label:"Single-product customers", value:single, sub:`${Math.round(single/total*100)}% of matched — cross-sell targets`, color:"#1A2B6B" },
+              { label:"Multi-product customers",  value:multi,  sub:`${Math.round(multi/total*100)}% already on 2+ products`,          color:"#E8690B" },
+              { label:"Solo firms (1 employee)",  value:soloEmp,sub:`${Math.round(soloEmp/total*100)}% of matched companies`,           color:"#00B0F0" },
+              { label:"VPC + InFine combo",        value:503,    sub:"Largest multi-product segment",                                   color:"#E8690B" },
+            ].map(k => (
+              <div key={k.label} style={{ background:"white", borderRadius:8, padding:"13px 15px", boxShadow:"0 1px 3px rgba(0,0,0,0.07)", borderTop:`3px solid ${k.color}` }}>
+                <div style={{ fontSize:26, fontWeight:700, color:k.color, lineHeight:1.1 }}>{k.value.toLocaleString()}</div>
+                <div style={{ fontSize:11, fontWeight:600, color:"#333", marginTop:4 }}>{k.label}</div>
+                <div style={{ fontSize:10, color:"#888", marginTop:2 }}>{k.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Heatmap */}
+          <div style={{ background:"white", borderRadius:10, padding:"18px 22px", marginBottom:14, boxShadow:"0 1px 4px rgba(0,0,0,0.07)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:"#1A2B6B", textTransform:"uppercase", letterSpacing:"0.8px" }}>Heatmap — Product × Headcount</div>
+              <div style={{ fontSize:10, color:"#AAA" }}>Colour intensity = count · Bar = entity mix · Hover for detail</div>
+            </div>
+
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ minWidth:700 }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding:"5px 8px", textAlign:"left", color:"#999", fontWeight:500, fontSize:10, width:150 }}></th>
+                    {EMP_BANDS.map(b => (
+                      <th key={b} style={{ padding:"5px 6px", textAlign:"center", color:"#555", fontWeight:600, fontSize:10, background:"#F4F6FB", borderRadius:4, whiteSpace:"nowrap", minWidth:78 }}>{b}</th>
+                    ))}
+                    <th style={{ padding:"5px 8px", textAlign:"center", color:"#1A2B6B", fontWeight:700, fontSize:10, minWidth:52 }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ALL_PRODS.map(prod => {
+                    const rTotal = rowTotal(prod);
+                    const isFirstMulti = prod === MULTI_PRODS[0];
+                    return (
+                      <React.Fragment key={prod}>
+                        {isFirstMulti && (
+                          <tr>
+                            <td colSpan={EMP_BANDS.length + 2} style={{ padding:"8px 0 3px 8px" }}>
+                              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                                <div style={{ height:1, flex:1, background:"#E0E5F0" }} />
+                                <span style={{ fontSize:9, color:"#AAA", fontWeight:600, textTransform:"uppercase", letterSpacing:"1px", whiteSpace:"nowrap" }}>Multi-product</span>
+                                <div style={{ height:1, flex:1, background:"#E0E5F0" }} />
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        <tr>
+                          <td style={{ padding:"3px 8px 3px 0", whiteSpace:"nowrap" }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                              <div style={{ width:3, height:26, background:PROD_COLORS[prod], borderRadius:2, flexShrink:0 }} />
+                              <span style={{ fontSize:11, fontWeight:600, color:"#1A2B6B" }}>{prod}</span>
+                            </div>
+                          </td>
+                          {EMP_BANDS.map(emp => {
+                            const key  = `${prod}||${emp}`;
+                            const cell = cells[key];
+                            const val  = cell?.total || 0;
+                            const isHov = hovered === key;
+                            const t = val ? Math.pow(val/maxVal, 0.5) : 0;
+                            const bg = isHov ? PROD_COLORS[prod] : (val ? interpColor(t) : "#F8F9FC");
+                            const fc = isHov ? "white" : (t > 0.55 ? "white" : "#1A2B6B");
+                            return (
+                              <td key={emp}
+                                onMouseEnter={() => val && setHovered(key)}
+                                onMouseLeave={() => setHovered(null)}
+                                style={{ padding:"5px 4px", textAlign:"center", background:bg, borderRadius:5, cursor:val?"pointer":"default", transition:"background 0.12s" }}
+                              >
+                                {val > 0 ? (
+                                  <div>
+                                    <div style={{ fontSize:14, fontWeight:700, color:fc, lineHeight:1.1 }}>{val}</div>
+                                    <div style={{ fontSize:9, color:isHov?"rgba(255,255,255,0.75)":"#999", marginTop:1 }}>{Math.round(val/rTotal*100)}%</div>
+                                    <MiniBar byEntity={cell.byEntity} total={val} />
+                                  </div>
+                                ) : (
+                                  <span style={{ color:"#DDD", fontSize:14 }}>·</span>
+                                )}
+                              </td>
+                            );
+                          })}
+                          <td style={{ padding:"5px 8px", textAlign:"center", fontWeight:800, color:"#1A2B6B", fontSize:13, borderLeft:"1px solid #EEF1F7" }}>{rTotal}</td>
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Hover detail */}
+            {hovCell && (
+              <div style={{ marginTop:12, padding:"10px 14px", background:"#F3F6FF", borderRadius:7, borderLeft:`3px solid ${PROD_COLORS[hovProd]||"#1A2B6B"}`, fontSize:12 }}>
+                <div style={{ fontWeight:700, color:"#1A2B6B", marginBottom:6 }}>{hovProd} · {hovEmp} — {hovCell.total} companies</div>
+                <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+                  {ENTITIES.map(en => hovCell.byEntity[en] ? (
+                    <div key={en} style={{ display:"flex", alignItems:"center", gap:4 }}>
+                      <div style={{ width:9, height:9, borderRadius:2, background:ENTITY_COLORS[en] }} />
+                      <span style={{ color:"#444", fontSize:11 }}>{en}: <strong>{hovCell.byEntity[en]}</strong> ({Math.round(hovCell.byEntity[en]/hovCell.total*100)}%)</span>
+                    </div>
+                  ) : null)}
+                </div>
+              </div>
+            )}
+
+            {/* Legend */}
+            <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:12 }}>
+              <span style={{ fontSize:9, color:"#BBB" }}>Low</span>
+              {[0.05,0.15,0.28,0.45,0.65,0.88].map(t => (
+                <div key={t} style={{ width:22, height:12, borderRadius:3, background:interpColor(t) }} />
+              ))}
+              <span style={{ fontSize:9, color:"#BBB" }}>High</span>
+              <div style={{ marginLeft:"auto", display:"flex", gap:10, flexWrap:"wrap" }}>
+                {ENTITIES.map(en => (
+                  <div key={en} style={{ display:"flex", alignItems:"center", gap:4, fontSize:10, color:"#555" }}>
+                    <div style={{ width:8, height:8, borderRadius:1, background:ENTITY_COLORS[en] }} />{en}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Stacked bar chart */}
+          <div style={{ background:"white", borderRadius:10, padding:"18px 22px", boxShadow:"0 1px 4px rgba(0,0,0,0.07)" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:"#1A2B6B", textTransform:"uppercase", letterSpacing:"0.8px", marginBottom:14 }}>Entity type composition by product group</div>
+            <StackedBarChart data={barData} />
+            {/* Legend */}
+            <div style={{ display:"flex", gap:14, marginTop:12, flexWrap:"wrap" }}>
+              {ENTITIES.map(en => (
+                <div key={en} style={{ display:"flex", alignItems:"center", gap:5, fontSize:11, color:"#555" }}>
+                  <div style={{ width:10, height:10, borderRadius:2, background:ENTITY_COLORS[en] }} />{en}
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize:10, color:"#AAA", marginTop:8 }}>
+              InFine-only is Sole Trader + Partnership-heavy. VPC-only and VPC+MLE skew strongly BV Ltd. — structurally different buying profiles.
+            </div>
+          </div>
+
+          <div style={{ textAlign:"center", fontSize:9, color:"#C5CAD5", marginTop:12, letterSpacing:"0.5px", paddingBottom:20 }}>
+            Project Bear · Visionplanner CRM ✕ GDB NACE692_NO_NL · n=2,990 NL companies
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<SegMatrix />);
+  </script>
+</body>
+</html>
