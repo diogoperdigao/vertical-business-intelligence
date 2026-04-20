@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Compliance Challenge — Visma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Visma brand tokens ───────────────────────────────────────────── */
+:root {
+  --prussian:  #003253;
+  --cyprus:    #005254;
+  --chestnut:  #7e0228;
+  --navy:      #144260;
+  --sky:       #e7f0f5;
+  --mint:      #a9ded8;
+  --blush:     #f9b6b4;
+  --turbo:     #efdf00;
+  --cloud:     #efefec;
+  --logo-red:  #e70641;
+  --white:     #ffffff;
+
+  --valid-bg:        #e8f5ee;
+  --valid-border:    #1a6b3c;
+  --valid-text:      #1a5c2a;
+  --violation-bg:    #fdecea;
+  --violation-border:#b22222;
+  --violation-text:  #8b0000;
+  --grey-bg:         #fff8e6;
+  --grey-border:     #cc7700;
+  --grey-text:       #7a4a00;
+
+  --font-h: 'Ubuntu', sans-serif;
+  --font-b: 'Open Sans', sans-serif;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,50,83,.10);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-b);
+  background:var(--cloud);
+  color:#1a1a1a;
+  min-height:100vh;
+}
+
+/* ── Layout shell ─────────────────────────────────────────────────── */
+.shell{
+  max-width:760px;
+  margin:0 auto;
+  padding:0 16px 60px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+.site-header{
+  background:var(--prussian);
+  padding:18px 32px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:32px;
+}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-mark svg{display:block;}
+.logo-word{
+  font-family:var(--font-h);
+  font-weight:700;
+  font-size:22px;
+  color:var(--white);
+  letter-spacing:-.3px;
+}
+.header-badge{
+  margin-left:auto;
+  background:rgba(255,255,255,.12);
+  color:var(--mint);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  padding:5px 12px;
+  border-radius:20px;
+  font-family:var(--font-b);
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────── */
+.progress-wrap{
+  margin:0 0 28px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.progress-label{
+  font-size:13px;
+  color:var(--navy);
+  font-weight:600;
+  white-space:nowrap;
+  min-width:72px;
+}
+.progress-bar-bg{
+  flex:1;
+  height:8px;
+  background:rgba(0,50,83,.12);
+  border-radius:4px;
+  overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--cyprus),var(--mint));
+  border-radius:4px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+.progress-score{
+  font-size:13px;
+  color:var(--navy);
+  font-weight:600;
+  white-space:nowrap;
+  min-width:56px;
+  text-align:right;
+}
+
+/* ── Screens ──────────────────────────────────────────────────────── */
+.screen{display:none;}
+.screen.active{display:block;animation:fadeUp .4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── Intro ────────────────────────────────────────────────────────── */
+.intro-card{
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.intro-hero{
+  background:var(--prussian);
+  padding:48px 40px 36px;
+  position:relative;
+  overflow:hidden;
+}
+.intro-hero::after{
+  content:'';
+  position:absolute;
+  bottom:-40px;right:-60px;
+  width:220px;height:220px;
+  background:rgba(169,222,216,.08);
+  border-radius:50%;
+}
+.intro-hero h1{
+  font-family:var(--font-h);
+  font-size:32px;
+  font-weight:700;
+  color:var(--white);
+  line-height:1.15;
+  margin-bottom:10px;
+  position:relative;z-index:1;
+}
+.intro-hero p{
+  color:var(--mint);
+  font-size:15px;
+  line-height:1.55;
+  position:relative;z-index:1;
+}
+.intro-body{padding:36px 40px;}
+.intro-body h2{
+  font-family:var(--font-h);
+  font-size:17px;
+  color:var(--prussian);
+  margin-bottom:16px;
+}
+.how-list{list-style:none;display:flex;flex-direction:column;gap:14px;margin-bottom:32px;}
+.how-list li{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  font-size:14.5px;
+  line-height:1.5;
+  color:#333;
+}
+.how-icon{
+  width:32px;height:32px;min-width:32px;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  margin-top:1px;
+}
+.how-icon.blue{background:var(--sky);}
+.how-icon.teal{background:rgba(0,82,84,.1);}
+.how-icon.yellow{background:rgba(239,223,0,.2);}
+.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;}
+.chip{
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+  display:flex;align-items:center;gap:6px;
+}
+.chip.valid{background:var(--valid-bg);color:var(--valid-text);}
+.chip.violation{background:var(--violation-bg);color:var(--violation-text);}
+.chip.grey{background:var(--grey-bg);color:var(--grey-text);}
+.btn-start{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--prussian);
+  color:var(--white);
+  font-family:var(--font-h);
+  font-weight:700;
+  font-size:16px;
+  padding:16px 32px;
+  border:none;
+  border-radius:var(--radius);
+  cursor:pointer;
+  transition:background .2s,transform .1s;
+  text-decoration:none;
+}
+.btn-start:hover{background:var(--navy);transform:translateY(-1px);}
+.btn-start:active{transform:translateY(0);}
+
+/* ── Question card ────────────────────────────────────────────────── */
+.q-card{
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.q-tag{
+  background:var(--sky);
+  padding:10px 24px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--navy);
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-bottom:1px solid rgba(0,50,83,.07);
+}
+.q-tag-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--cyprus);
+  flex-shrink:0;
+}
+.q-body{padding:32px 36px;}
+.q-scenario-label{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  color:var(--cyprus);
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.q-scenario-label::before{
+  content:'';
+  display:inline-block;
+  width:18px;height:2px;
+  background:var(--cyprus);
+  border-radius:2px;
+}
+.scenario-box{
+  background:var(--sky);
+  border-left:4px solid var(--cyprus);
+  border-radius:0 8px 8px 0;
+  padding:18px 22px;
+  margin-bottom:28px;
+  font-size:14.5px;
+  line-height:1.65;
+  color:#222;
+}
+.scenario-box strong{color:var(--prussian);}
+.q-prompt{
+  font-family:var(--font-h);
+  font-size:18px;
+  font-weight:700;
+  color:var(--prussian);
+  margin-bottom:24px;
+  line-height:1.35;
+}
+
+/* ── Answer buttons ───────────────────────────────────────────────── */
+.answers{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.ans-btn{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px 22px;
+  border:2px solid #d0dae3;
+  border-radius:10px;
+  background:var(--white);
+  cursor:pointer;
+  font-family:var(--font-b);
+  font-size:15px;
+  font-weight:600;
+  color:#333;
+  text-align:left;
+  transition:border-color .2s,background .2s,transform .1s,box-shadow .2s;
+  position:relative;
+}
+.ans-btn:hover:not(:disabled){
+  border-color:var(--prussian);
+  background:var(--sky);
+  transform:translateX(3px);
+  box-shadow:0 2px 12px rgba(0,50,83,.10);
+}
+.ans-btn:active:not(:disabled){transform:translateX(1px);}
+.ans-btn:disabled{cursor:not-allowed;opacity:.7;}
+.ans-icon{
+  width:38px;height:38px;min-width:38px;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  transition:background .2s;
+}
+.ans-btn[data-answer="valid"] .ans-icon{background:#e8f5ee;}
+.ans-btn[data-answer="violation"] .ans-icon{background:#fdecea;}
+.ans-btn[data-answer="grey"] .ans-icon{background:#fff8e6;}
+.ans-label{flex:1;}
+.ans-label span{
+  display:block;
+  font-size:11px;
+  font-weight:400;
+  color:#888;
+  margin-top:2px;
+}
+
+/* Answer states */
+.ans-btn.correct{
+  border-color:var(--valid-border);
+  background:var(--valid-bg);
+  color:var(--valid-text);
+}
+.ans-btn.correct .ans-icon{background:rgba(26,107,60,.15);}
+.ans-btn.wrong{
+  border-color:var(--violation-border);
+  background:var(--violation-bg);
+  color:var(--violation-text);
+  text-decoration:line-through;
+  text-decoration-color:rgba(139,0,0,.4);
+}
+.ans-btn.wrong .ans-icon{background:rgba(178,34,34,.12);}
+.ans-btn.dimmed{opacity:.4;}
+
+/* ── Feedback panel ───────────────────────────────────────────────── */
+.feedback{
+  display:none;
+  animation:slideDown .35s ease both;
+  margin-bottom:8px;
+}
+.feedback.show{display:block;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+.feedback-inner{
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid;
+}
+.feedback-inner.valid{
+  border-color:var(--valid-border);
+}
+.feedback-inner.violation{
+  border-color:var(--violation-border);
+}
+.feedback-inner.grey{
+  border-color:var(--grey-border);
+}
+.feedback-header{
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:var(--font-h);
+  font-weight:700;
+  font-size:15px;
+}
+.feedback-inner.valid .feedback-header{background:var(--valid-border);color:var(--white);}
+.feedback-inner.violation .feedback-header{background:var(--violation-border);color:var(--white);}
+.feedback-inner.grey .feedback-header{background:var(--grey-border);color:var(--white);}
+.feedback-result-badge{
+  background:rgba(255,255,255,.2);
+  border-radius:20px;
+  font-size:12px;
+  padding:3px 10px;
+  font-weight:600;
+  font-family:var(--font-b);
+}
+.feedback-body{
+  padding:18px 20px;
+  font-size:14px;
+  line-height:1.65;
+  color:#222;
+  background:var(--white);
+}
+.feedback-inner.valid .feedback-body{background:var(--valid-bg);}
+.feedback-inner.violation .feedback-body{background:var(--violation-bg);}
+.feedback-inner.grey .feedback-body{background:var(--grey-bg);}
+.feedback-body p{margin-bottom:10px;}
+.feedback-body p:last-child{margin-bottom:0;}
+.feedback-policy{
+  margin-top:12px;
+  padding:10px 14px;
+  background:rgba(255,255,255,.65);
+  border-radius:6px;
+  font-size:12.5px;
+  color:#444;
+}
+.feedback-policy strong{color:var(--prussian);}
+
+/* ── Next button ──────────────────────────────────────────────────── */
+.btn-next{
+  display:none;
+  align-items:center;
+  gap:8px;
+  background:var(--prussian);
+  color:var(--white);
+  font-family:var(--font-h);
+  font-weight:700;
+  font-size:15px;
+  padding:14px 28px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:background .2s,transform .1s;
+  margin-top:20px;
+}
+.btn-next.show{display:inline-flex;}
+.btn-next:hover{background:var(--navy);transform:translateY(-1px);}
+.btn-next .arrow{font-size:18px;transition:transform .2s;}
+.btn-next:hover .arrow{transform:translateX(3px);}
+
+/* ── Results screen ───────────────────────────────────────────────── */
+.results-card{
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.results-hero{
+  background:var(--prussian);
+  padding:44px 40px 36px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.results-hero::before{
+  content:'';
+  position:absolute;top:-60px;left:-80px;
+  width:240px;height:240px;
+  background:rgba(169,222,216,.07);
+  border-radius:50%;
+}
+.results-hero::after{
+  content:'';
+  position:absolute;bottom:-50px;right:-60px;
+  width:200px;height:200px;
+  background:rgba(239,223,0,.05);
+  border-radius:50%;
+}
+.score-ring{
+  width:120px;height:120px;
+  margin:0 auto 20px;
+  position:relative;
+  z-index:1;
+}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-track{fill:none;stroke:rgba(255,255,255,.15);stroke-width:8;}
+.score-ring-fill{fill:none;stroke:var(--mint);stroke-width:8;stroke-linecap:round;transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1);}
+.score-number{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:var(--font-h);
+  font-size:28px;
+  font-weight:700;
+  color:var(--white);
+  z-index:2;
+}
+.score-number span{font-size:14px;font-weight:400;opacity:.7;}
+.results-hero h2{
+  font-family:var(--font-h);
+  font-size:24px;
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:8px;
+  position:relative;z-index:1;
+}
+.results-hero .sub{
+  color:var(--mint);
+  font-size:14px;
+  position:relative;z-index:1;
+}
+.results-body{padding:36px 40px;}
+.results-body h3{
+  font-family:var(--font-h);
+  font-size:16px;
+  color:var(--prussian);
+  margin-bottom:20px;
+}
+.review-list{display:flex;flex-direction:column;gap:10px;margin-bottom:32px;}
+.review-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:14px 18px;
+  border-radius:8px;
+  border:1px solid #e0e0e0;
+  font-size:13.5px;
+  line-height:1.5;
+}
+.review-item.correct-item{background:#f0faf4;border-color:#b2dfc5;}
+.review-item.wrong-item{background:#fef5f5;border-color:#f0c0c0;}
+.review-status{
+  width:24px;height:24px;min-width:24px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  font-weight:700;
+  margin-top:1px;
+}
+.review-status.ok{background:var(--valid-border);color:var(--white);}
+.review-status.no{background:var(--violation-border);color:var(--white);}
+.review-item-label{font-weight:600;color:var(--prussian);}
+.review-item-verdict{color:#555;margin-top:2px;}
+.resources{
+  background:var(--sky);
+  border-radius:10px;
+  padding:22px 24px;
+  margin-bottom:24px;
+}
+.resources h4{
+  font-family:var(--font-h);
+  font-size:14px;
+  color:var(--prussian);
+  margin-bottom:12px;
+}
+.resources ul{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  font-size:13.5px;
+  color:#333;
+}
+.resources li{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(0,50,83,.08);
+}
+.resources li:last-child{border-bottom:none;}
+.resources li::before{content:'→';color:var(--cyprus);font-weight:700;}
+.btn-retry{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--cloud);
+  color:var(--prussian);
+  font-family:var(--font-h);
+  font-weight:700;
+  font-size:15px;
+  padding:14px 28px;
+  border:2px solid var(--prussian);
+  border-radius:10px;
+  cursor:pointer;
+  transition:background .2s,transform .1s;
+}
+.btn-retry:hover{background:var(--sky);transform:translateY(-1px);}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media(max-width:600px){
+  .site-header{padding:16px 20px;}
+  .intro-hero,.intro-body,.q-body,.results-hero,.results-body{padding:28px 24px;}
+  .intro-hero h1{font-size:26px;}
+  .q-prompt{font-size:16px;}
+  .header-badge{display:none;}
+  .shell{padding:0 12px 48px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="logo">
+    <div class="logo-mark">
+      <!-- Simplified Visma logomark approximation -->
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="17" cy="17" r="17" fill="#e70641"/>
+        <path d="M17 17 L17 4 A13 13 0 0 1 30 17 Z" fill="#ffffff" opacity="0.9"/>
+        <path d="M17 17 L4.5 22 A13 13 0 0 1 4 17 Z" fill="#ffffff" opacity="0.5"/>
+      </svg>
+    </div>
+    <span class="logo-word">Visma</span>
+  </div>
+  <div class="header-badge">AI Compliance Challenge</div>
+</header>
+
+<!-- ── Main shell ──────────────────────────────────────────────────── -->
+<div class="shell">
+
+  <!-- Progress (hidden on intro/results) -->
+  <div class="progress-wrap" id="progress-wrap" style="display:none;">
+    <div class="progress-label" id="progress-label">Question 1 / 7</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-score" id="progress-score">0 pts</div>
+  </div>
+
+  <!-- ── INTRO ───────────────────────────────────────────────────── -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card">
+      <div class="intro-hero">
+        <h1>AI & Data Compliance<br>Challenge</h1>
+        <p>Seven real-world scenarios from the Visma Growth Data team.<br>
+        Test your knowledge of Visma's AI Code of Conduct.</p>
+      </div>
+      <div class="intro-body">
+        <h2>How it works</h2>
+        <ul class="how-list">
+          <li>
+            <div class="how-icon blue">📋</div>
+            <div>Read a short scenario describing a real action your team might take when using AI or processing data.</div>
+          </li>
+          <li>
+            <div class="how-icon teal">🎯</div>
+            <div>Choose whether the action is <strong>Valid</strong>, a <strong>Violation</strong>, or a <strong>Grey Area</strong> requiring judgment.</div>
+          </li>
+          <li>
+            <div class="how-icon yellow">💡</div>
+            <div>Get instant feedback with the policy rationale, and carry on to the next question.</div>
+          </li>
+        </ul>
+        <div class="chip-row">
+          <span class="chip valid">✅ Valid — compliant</span>
+          <span class="chip violation">🚫 Violation — clear breach</span>
+          <span class="chip grey">⚠️ Grey Area — depends on context</span>
+        </div>
+        <button class="btn-start" onclick="startQuiz()">
+          Start the Challenge <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUIZ ────────────────────────────────────────────────────── -->
+  <div class="screen" id="screen-quiz">
+    <div class="q-card">
+      <div class="q-tag">
+        <div class="q-tag-dot"></div>
+        <span id="q-tag-text">Scenario 1 of 7 — Tool Governance</span>
+      </div>
+      <div class="q-body">
+        <div class="q-scenario-label">The scenario</div>
+        <div class="scenario-box" id="scenario-text"></div>
+        <div class="q-prompt" id="q-prompt">Is this compliant with Visma's AI policy?</div>
+        <div class="answers" id="answers-wrap">
+          <button class="ans-btn" data-answer="valid" onclick="selectAnswer('valid')">
+            <div class="ans-icon">✅</div>
+            <div class="ans-label">
+              Valid
+              <span>This is compliant — no action needed</span>
+            </div>
+          </button>
+          <button class="ans-btn" data-answer="violation" onclick="selectAnswer('violation')">
+            <div class="ans-icon">🚫</div>
+            <div class="ans-label">
+              Violation
+              <span>This clearly breaches Visma policy</span>
+            </div>
+          </button>
+          <button class="ans-btn" data-answer="grey" onclick="selectAnswer('grey')">
+            <div class="ans-icon">⚠️</div>
+            <div class="ans-label">
+              Grey Area
+              <span>Depends on context — needs careful assessment</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Feedback panel (shown after answering) -->
+        <div class="feedback" id="feedback-panel">
+          <div class="feedback-inner" id="feedback-inner">
+            <div class="feedback-header" id="feedback-header"></div>
+            <div class="feedback-body" id="feedback-body"></div>
+          </div>
+        </div>
+
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+          <span id="btn-next-label">Next Question</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ─────────────────────────────────────────────────── -->
+  <div class="screen" id="screen-results">
+    <div class="results-card">
+      <div class="results-hero">
+        <div class="score-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle class="score-ring-track" cx="60" cy="60" r="50"/>
+            <circle class="score-ring-fill" id="ring-fill" cx="60" cy="60" r="50"
+              stroke-dasharray="0 314" stroke-dashoffset="0"/>
+          </svg>
+          <div class="score-number" id="score-display">0<span>/7</span></div>
+        </div>
+        <h2 id="results-headline">Well done!</h2>
+        <p class="sub" id="results-sub">Here's how you scored</p>
+      </div>
+      <div class="results-body">
+        <h3>Question review</h3>
+        <div class="review-list" id="review-list"></div>
+        <div class="resources">
+          <h4>📚 Key policy references</h4>
+          <ul>
+            <li>Visma AI Code of Conduct v1.0 — covers all employees, developers, finance &amp; HR</li>
+            <li>AI Tools &amp; Data Security Guide — DPA coverage, approved tools, data classification</li>
+            <li>AI Governance Portal — tool reviews, Legal AI Assessments, use case guidance</li>
+            <li>For questions: <strong>security@visma.com</strong> or your company's DPM</li>
+          </ul>
+        </div>
+        <button class="btn-retry" onclick="restartQuiz()">↺ &nbsp;Try again</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+/* ──────────────────────────────────────────────────────────────────
+   QUESTION DATA
+   Each question has:
+   - tag:      short category label
+   - scenario: the HTML scenario text
+   - correct:  "valid" | "violation" | "grey"
+   - feedback: { valid:{correct,title,body,policy}, violation:{...}, grey:{...} }
+────────────────────────────────────────────────────────────────── */
+const questions = [
+
+  // Q1 ── MCP + GDPR sub-processor chain
+  {
+    tag: "Scenario 1 of 7 — MCP Connectors & GDPR Processing Chains",
+    scenario: `A Visma product team builds a customer success assistant using <strong>Claude Enterprise</strong> (covered by the Visma–Anthropic DPA) connected via an <strong>MCP integration to Salesforce</strong> (also on the Visma approved tools list, DPA in place). When a support agent asks a question, Claude queries Salesforce in real time and returns live customer data — names, subscription details, support history. The team has ticked every box they know: ✓ Claude Enterprise DPA &nbsp; ✓ Salesforce DPA &nbsp; ✓ Both tools Visma-approved. They ship the feature without updating their customer-facing contracts.`,
+    correct: "violation",
+    feedback: {
+      valid: {
+        title: "Not quite — this is a Violation",
+        body: `<p>The team did many things right: correct tool tier, DPAs with both vendors, both on the approved list. But there's a critical missing link in the GDPR chain.</p>
+               <p>Under GDPR, the customer who originally provided their data is the <strong>controller</strong>. The Visma company is the <strong>processor</strong>. When Claude processes that customer data via MCP, Anthropic becomes a <strong>sub-sub-processor</strong> — and the customer must know about and authorize every party in that chain. They don't, and they haven't been told.</p>`,
+        policy: `<strong>Policy:</strong> GDPR Roles training material — "The controller must know about and authorize every party that processes their data. If Claude isn't listed as a sub-processor in the customer contract, enabling this MCP connector may put your Visma company in breach of that contract and GDPR."`
+      },
+      violation: {
+        title: "Correct — this is a Violation ✓",
+        body: `<p>The team did the technical and internal compliance work well. The missing step is the one most likely to be overlooked: <strong>the customer (controller) hasn't been told that Anthropic now processes their data.</strong></p>
+               <p>Under GDPR, the full chain must be authorized before data flows:<br>
+               Customer (controller) → Visma company (processor) → Salesforce (sub-processor) → Claude/Anthropic (sub-sub-processor)</p>
+               <p>Each arrow requires a DPA <em>and</em> the customer's knowledge. Anthropic must be listed as a sub-processor in the customer contract — or added via a sub-processor update notification mechanism if the contract allows it. Without this, the MCP integration is processing customer production data unlawfully, regardless of how secure the tools are.</p>
+               <p><strong>The rule:</strong> Technical capability is not the same as legal permission.</p>`,
+        policy: `<strong>Policy:</strong> GDPR Roles material — "Claude / Anthropic must be listed as a sub-processor to the customer — this is the step most likely to be missing." AI Code of Conduct — "Do not share customer production data with AI tools unless the customer contract explicitly allows it and the AI tool is listed as a sub-processor."`
+      },
+      grey: {
+        title: "This is actually a clear Violation — here's why",
+        body: `<p>The nuance you're picking up is real: the team did most things correctly. But the GDPR controller-processor chain has a binary requirement — either every party is authorized by the controller, or the processing is unlawful. There's no middle ground on this one.</p>
+               <p>The customer is the <strong>controller</strong>. They own the accountability. Adding Anthropic to the processing chain without their knowledge isn't a grey area — it's a contract breach and a GDPR violation, regardless of how secure or well-DPA'd the internal chain is.</p>
+               <p>Grey areas in MCP setups are more about <em>how</em> to make this compliant (update the customer contract first? use a notice mechanism?). The question of whether it's compliant without customer knowledge has a clear answer: no.</p>`,
+        policy: `<strong>Policy:</strong> GDPR Roles material — "The controller must know about and authorize every party that processes their data." Simple decision rule: "Does the customer know? If no or I don't know — don't enable the connector."`
+      }
+    }
+  },
+
+  // Q2 ── Workspace connector + scope
+  {
+    tag: "Scenario 2 of 7 — Workspace Integrations & Connector Scope",
+    scenario: `A growth analyst wants Claude to help her work through analytics reports faster. She connects <strong>Claude CoWork</strong> (Visma enterprise licence, covered tool) to a <strong>specific Google Drive folder</strong> called "Growth Team Analytics" using the Connector integration. She scopes it carefully: <strong>read-only access, that folder only</strong> — no customer data inside, just internal dashboards, SQL outputs, and slide decks. She reasons: <em>"CoWork has the DPA, I've limited the scope, and there's no personal data in there. I've done everything right."</em>`,
+    correct: "grey",
+    feedback: {
+      valid: {
+        title: "Not quite — this is a Grey Area",
+        body: `<p>The analyst made genuinely good decisions: right tool tier, read-only, specific folder, no customer data. These things matter and reduce risk considerably.</p>
+               <p>The issue is one she may not know: <strong>Connectors are explicitly excluded from the Visma–Anthropic DPA</strong> — even when used via Claude CoWork. Data flowing through the Connector to Google Drive is outside the contractual protections that cover direct Claude use. There's no DPA guarantee around how that data is handled, stored, or whether it could be used for training.</p>`,
+        policy: `<strong>Policy:</strong> AI Tools & Data Security Guide — "The following parts of Claude are NOT covered by the DPA: Connectors." AI Code of Conduct — "Be curious but also sceptical to connectors and plugins in general. Treat AI access like any new supplier relationship."`
+      },
+      violation: {
+        title: "This is more of a Grey Area — here's the nuance",
+        body: `<p>You're right to flag the connector DPA issue — it's real and important. But calling this a clear violation misses the nuance in the Code of Conduct's framing.</p>
+               <p>The policy doesn't say "never use connectors." It says <em>"be curious but sceptical... treat it like a new supplier relationship — make a conscious decision and start with the minimum scope needed."</em> The analyst did exactly that: minimum scope, read-only, no personal or customer data.</p>
+               <p>The remaining concern — connector excluded from DPA — means she should do a conscious risk assessment and ideally confirm whether the Connector is on the Visma reviewed tools list. That's different from a clear policy breach. The data risk here is low; the process gap is what needs addressing.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Be curious but also sceptical to connectors and plugins in general. Treat AI access like any new supplier relationship — make a conscious decision and start with the minimum scope needed and expand only when trust is established."`
+      },
+      grey: {
+        title: "Correct — this is a Grey Area ✓",
+        body: `<p>Good judgment. The analyst did several things right that genuinely matter:</p>
+               <p>✅ Claude CoWork — the correct, DPA-covered tool tier.<br>
+               ✅ Read-only access — respects the minimum necessary principle.<br>
+               ✅ Specific folder only — not whole Drive.<br>
+               ✅ No customer or personal data in scope.</p>
+               <p>The unresolved issue: <strong>Connectors are explicitly excluded from the Visma–Anthropic DPA</strong>, regardless of which Claude product you use. Data flowing through the Connector has no contractual protections — no guarantee it won't be used for training, no breach notification commitment, no audit rights.</p>
+               <p>For internal, non-personal documents this is lower risk than connecting to customer data. But it still requires a conscious assessment: Is the Connector on the Visma approved list? Has your company's service owner reviewed it? The right move is to check before connecting — not assume the underlying tool's DPA covers the integration.</p>`,
+        policy: `<strong>Policy:</strong> AI Tools & Data Security Guide — "Connectors: not covered by the DPA." AI Code of Conduct — "Limit the tools access to data to the extent necessary." Connector risk is real even when data scope is small — verify through the Visma reviewed tools list or your IT/DPM.`
+      }
+    }
+  },
+
+  // Q3 ── Cross-BU benchmarking (competition law — nuanced)
+  {
+    tag: "Scenario 3 of 7 — Competition Law & Customer Data",
+    scenario: `The team wants to build a benchmarking product for Visma's <strong>SMB accounting customers</strong>. Using Visma's accounting and invoicing platform data in VDL, it would show each customer how their <strong>average revenue per customer (ARPC), cost structure, and profit margins</strong> compare to anonymised industry peers — broken down by region and company size. The pitch: "See how your business performs relative to similar companies." The underlying data comes from Visma's customers' own financial records processed through Visma's SaaS products.`,
+    correct: "violation",
+    feedback: {
+      valid: {
+        title: "Not quite — this is a Violation",
+        body: `<p>The key issue here is not the anonymisation — it's the <strong>type of data</strong> and what it could enable. ARPC, cost structure, and margin data drawn from Visma's customers' financial records is non-public commercial intelligence. Even anonymised, sharing it as a benchmark allows competitors in the same region and segment to infer each other's pricing and margin structures.</p>
+               <p>Competition authorities have specifically flagged this type of product as problematic, regardless of anonymisation, when Visma has a dominant market position in that segment.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Competition authorities may interpret such indirect sharing of financial and behavioural data between customers as a breach of competition law since the customers may use the products and services to reduce competition."`
+      },
+      violation: {
+        title: "Correct — this is a Violation ✓",
+        body: `<p>The AI Code of Conduct has a dedicated section on exactly this type of product. The specific risks:</p>
+               <p>• Visma's accounting and invoicing customers <strong>compete with each other</strong> in the same regional markets. A benchmark showing margin and ARPC by region and size allows them to infer competitor cost structures — potentially facilitating price coordination.<br>
+               • <strong>Regional and segment granularity</strong> makes this worse: the more specific the benchmark, the more useful it is for competitive intelligence — and the more problematic under competition law.<br>
+               • Competition authorities have signalled this is problematic <strong>regardless of anonymisation</strong> or sample size arguments.</p>
+               <p><strong>What's safer:</strong> Benchmarks built on public data (industry reports, public filings). Or a tool that shows a customer only their own data vs. a broad, non-granular national average with no regional or sector breakdown.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "If using aggregated customer data for training AI experts, then the service should not offer any regional or segment based granularity." Contact Legal before building: erich.nokling@visma.com`
+      },
+      grey: {
+        title: "This leans toward Violation — here's the nuance",
+        body: `<p>You're right that anonymisation and averages matter. But the Code of Conduct draws a sharper line than you might expect when <strong>financial and margin data + regional/segment granularity</strong> are combined.</p>
+               <p>The distinction the policy makes:<br>
+               ✅ Benchmarks using <strong>public data</strong> (industry reports, public filings) — generally fine.<br>
+               ✅ Showing a customer <strong>their own data</strong> vs. a broad national average — lower risk.<br>
+               ✅ <strong>Anonymised web analytics or lead conversion rates</strong> — generally fine, less commercially sensitive.<br>
+               🚫 Aggregating customers' <strong>non-public financial data</strong> (margins, ARPC, cost structure) with <strong>regional/sector granularity</strong> — competition law risk regardless of anonymisation.</p>
+               <p>The reason: companies in the same region and sector can reverse-engineer competitive intelligence from granular financial benchmarks even when individual records are anonymised.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — Recommendation (c): "If using aggregated customer data for training AI experts, then the service should not offer any regional or segment based granularity." Mandatory: consult Legal & Compliance before building.`
+      }
+    }
+  },
+
+  // Q4 ── CRM personal data in Claude Enterprise
+  {
+    tag: "Scenario 4 of 7 — Personal Data & GDPR",
+    scenario: `For the lead scoring model, the team uses <strong>Claude Enterprise</strong> (the Visma team account, covered by the DPA) to analyse records from <strong>vdl_crm_contacts</strong>. The AI receives full CRM records including contact names, email addresses, company roles, and interaction history. The team reasons: <em>"We're using the approved, DPA-covered tool — so this should be fine."</em>`,
+    correct: "grey",
+    feedback: {
+      valid: {
+        title: "Not quite — this is a Grey Area",
+        body: `<p>Using Claude Enterprise (the DPA-covered account) is the right starting point. But using personal data — names, email addresses, interaction history — in AI prompts isn't automatically fine just because the tool is compliant.</p>
+               <p>You also need a <strong>lawful basis for processing</strong> under GDPR, a check that customer contracts allow this use, and data minimisation (use account IDs instead of names where names aren't needed for the task).</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Be aware of customer production data. Do not include customer production data unless your customer contract explicitly allows it." AI Tools & Data Security Guide — "Personal data — names, emails: Data NOT to Process via non-compliant tools." (Via compliant tools: requires care and legal basis.)`
+      },
+      violation: {
+        title: "This is a Grey Area, not an outright Violation",
+        body: `<p>Using Claude Enterprise (the DPA-covered, Visma Group account) is the correct tool choice — that's genuinely different from using personal accounts or unapproved tools.</p>
+               <p>The grey area here is that personal data still requires careful handling <em>even in compliant tools</em>: you need a lawful basis for processing, a check that the customer contracts permit AI use of their data, and you should minimise the personal data in prompts where possible (e.g. use account IDs rather than names).</p>
+               <p>So this isn't a clean violation — it's a valid use case that needs proper assessment before proceeding.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Customer Production Data: Do not share customer production data unless covered by the contract with customers." GDPR requires lawful basis for processing personal data regardless of the security of the tool used.`
+      },
+      grey: {
+        title: "Correct — this is a Grey Area ✓",
+        body: `<p>Good judgment. The tool choice is right — Claude Enterprise is DPA-covered and compliant. That's genuinely important.</p>
+               <p>But using personal data (names, emails, interaction history) in AI prompts requires more than just choosing the right tool. You also need:</p>
+               <p>• A <strong>lawful basis under GDPR</strong> for this processing (legitimate interest for sales activities may apply, but it must be assessed).<br>
+               • A check that <strong>customer contracts</strong> permit their contact data to be processed by AI tools.<br>
+               • <strong>Data minimisation</strong> — use account IDs or anonymised identifiers where the full contact record isn't needed for the AI's task.</p>
+               <p>Not automatically a violation, but not automatically fine either. Assess before proceeding.</p>`,
+        policy: `<strong>Policy:</strong> AI Tools & Data Security Guide — "Personal data — names, emails: Data NOT to Process via non-compliant tools." (Compliant tools require careful handling, not automatic prohibition.) AI Code of Conduct — "Be aware of customer production data."`
+      }
+    }
+  },
+
+  // Q5 ── Sales rep activity scoring
+  {
+    tag: "Scenario 5 of 7 — Employee Data & HR",
+    scenario: `The service analyses <strong>vdl_sales_activity</strong> data to build an individual activity score for each sales representative — tracking calls per day, email response rates, and pipeline update frequency. Representatives whose scores fall <strong>below the team average are automatically flagged</strong> in the weekly report sent to the sales manager for review. No HR team was consulted in building this feature.`,
+    correct: "grey",
+    feedback: {
+      valid: {
+        title: "Not quite — this is a Grey Area",
+        body: `<p>Analysing <em>aggregated</em> team activity data is fine. But this feature goes further: it produces <strong>individual-level AI scores</strong> and automatically flags specific employees for management action. That sits in legally sensitive territory.</p>
+               <p>Under GDPR, the EU AI Act, and local employment law, using AI to profile and flag individual employees requires a formal risk assessment and, in most EU jurisdictions, consultation with employee representatives before implementation.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Letting AI make decisions about working hours, promotions, hiring, or dismissal without a documented, meaningful decision by a human is not OK." Employee monitoring is subject to strict regulation.`
+      },
+      violation: {
+        title: "This sits in a Grey Area, not a clear Violation",
+        body: `<p>This isn't a clean violation — sales activity data analysis is a legitimate business activity, and the final flagging goes to a human manager (not an automated decision).</p>
+               <p>But it's also not straightforwardly fine. The AI Code of Conduct draws a clear line: <strong>aggregated team data is OK; individual AI scores used to trigger management action require careful assessment</strong>. HR, employee representatives, and likely legal input are needed before deploying this feature.</p>
+               <p>The absence of any HR consultation in building this is itself a red flag.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct (HR & People Operations) — "Analysis based on aggregated data is OK. Letting AI make decisions about working hours [or performance] without a documented, meaningful decision by a human is not OK." Compliance, legal & DPMs should "ensure formal risk assessments and employee representative consultations before AI touches HR processes."`
+      },
+      grey: {
+        title: "Correct — this is a Grey Area ✓",
+        body: `<p>Good. This is one of the most nuanced areas in the policy. The Code of Conduct explicitly distinguishes between:</p>
+               <p>✅ <strong>Aggregated data analysis</strong> (e.g. team-level activity summaries) — generally OK.<br>
+               🚫 <strong>Individual AI profiling used to trigger management action</strong> — requires formal risk assessment, HR consultation, and employee representative involvement.</p>
+               <p>This feature sits in the second category. It doesn't mean it can't be built — but it needs proper process: a risk assessment, HR sign-off, transparency to the employees being scored, and a genuine human review step (not just a weekly email).</p>
+               <p>Employee monitoring is heavily regulated under GDPR, the EU AI Act, and local employment law in most Visma markets.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Employee monitoring is heavily regulated under GDPR, the EU AI Act and local employment law." Key distinction: aggregated data OK; individual profiling for employment decisions requires documented human oversight and formal risk assessment.`
+      }
+    }
+  },
+
+  // Q6 ── Anonymized web analytics in Claude Enterprise
+  {
+    tag: "Scenario 6 of 7 — Good Practice Spot-Check",
+    scenario: `To understand conversion patterns on Visma's marketing website, the analytics team uses <strong>Claude Enterprise</strong> (the Visma team account) to query <strong>vdl_web_analytics</strong> data and generate conversion funnel insights. The dataset is <strong>fully anonymised</strong> — no names, emails, or persistent user identifiers are included, only aggregate event counts and session metadata. The team uses their Enterprise licence and reviews the AI output before acting on it.`,
+    correct: "valid",
+    feedback: {
+      valid: {
+        title: "Correct — this is Valid ✓",
+        body: `<p>This is what good practice looks like. Let's check each element:</p>
+               <p>✅ <strong>Right tool:</strong> Claude Enterprise is covered by the Visma–Anthropic DPA. Data is not used for training, GDPR SCCs are in place, and Visma has full audit rights.<br>
+               ✅ <strong>Right data:</strong> Anonymised web analytics contain no personal data — no GDPR obligations are triggered for the analysis step.<br>
+               ✅ <strong>Right process:</strong> The team reviews AI output before acting on it, satisfying the verification principle.</p>
+               <p>This is a legitimate, low-risk, high-value use of AI on data. The whole point of the compliance framework is to make confident, efficient use of AI like this <em>the easy, default choice</em>.</p>`,
+        policy: `<strong>Policy:</strong> AI Tools & Data Security Guide — Claude Enterprise covered by DPA (data not used for training, GDPR SCCs included). AI Code of Conduct — "Verify before you use." Web analytics that are fully anonymised fall outside GDPR personal data scope for this use.`
+      },
+      violation: {
+        title: "Not quite — this is actually Valid",
+        body: `<p>It's worth checking why each element here is fine:</p>
+               <p>The tool (Claude Enterprise) is covered by the Visma–Anthropic DPA. The data (anonymised web analytics) contains no personal data, so GDPR obligations don't apply to this analysis. The team reviews the output before acting — meeting the verification principle.</p>
+               <p>The compliance framework exists precisely to enable use cases like this with confidence. Not everything is a risk — the goal is to know the difference.</p>`,
+        policy: `<strong>Policy:</strong> AI Tools & Data Security Guide — Claude Enterprise is a covered, compliant tool. Anonymised data does not constitute personal data under GDPR. AI Code of Conduct — "Verify before you use" — met by the team's review step.`
+      },
+      grey: {
+        title: "Not quite — this is clearly Valid",
+        body: `<p>Each element here is straightforwardly compliant: DPA-covered tool, anonymised data (no GDPR personal data), legitimate business purpose, output reviewed before use.</p>
+               <p>Grey areas arise when there are competing obligations or unclear boundaries — for example, when personal data is used with an approved tool, or when analytics data might be re-identifiable. Fully anonymised web event data doesn't raise those questions.</p>
+               <p>Recognising compliant use cases as clearly fine is just as important as spotting violations. The framework is there to enable work, not block it.</p>`,
+        policy: `<strong>Policy:</strong> AI Tools & Data Security Guide — Claude Enterprise DPA protections include: "Data NOT used for AI model training. GDPR Standard Contractual Clauses included. Annual SOC 2 audit." Anonymised analytics: no personal data obligations triggered.`
+      }
+    }
+  }
+
+  // Q7 ── AI-drafted board content without source verification
+  {
+    tag: "Scenario 7 of 7 — AI Output & Accountability",
+    scenario: `The service drafts the narrative sections of the monthly <strong>leadership board deck</strong> — including market analysis, strategic commentary, and growth recommendations. The team reads through the AI draft and makes light edits before submitting. There is <strong>no formal step to verify figures against original sources</strong>. The deck goes to board level with no explicit note that AI was used to draft the analysis.`,
+    correct: "grey",
+    feedback: {
+      valid: {
+        title: "Not quite — this is a Grey Area",
+        body: `<p>Using AI to draft board content is not prohibited and can be a genuine efficiency gain. But the Code of Conduct requires that you can <strong>stand behind the output</strong> — meaning you can explain how AI was used, and that factual claims have been verified against credible sources.</p>
+               <p>"Reading through and making light edits" is not the same as verifying the analysis. At board level, the consequences of inaccurate claims are significant.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "You must be able to explain how you used AI in your work. Do not use output you do not understand." Responsible AI section: "Always cross-check AI output, and never use results you do not understand or cannot explain."`
+      },
+      violation: {
+        title: "This is a Grey Area, not a clear Violation",
+        body: `<p>Using AI to draft board content is not prohibited by the Code of Conduct — it's actively encouraged as a productivity gain. The issue is the <em>absence of proper verification</em>, not the use of AI itself.</p>
+               <p>A grey area because: the team does review the output (better than nothing), the tool used (Claude Enterprise) is compliant, and "board deck support" is a legitimate use case. What's missing is a structured verification step that ensures factual claims are accurate before they reach the board.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Verify before you use: AI can produce confident-sounding text that is inaccurate, outdated, or biased." Responsible AI: "Verify output accuracy: Always cross-check AI output, especially if results do not refer to credible sources."`
+      },
+      grey: {
+        title: "Correct — this is a Grey Area ✓",
+        body: `<p>Using AI to draft board content is legitimate and the team does review it — so this isn't a clear violation. But the Code of Conduct's verification principle means the current process needs a small but important upgrade.</p>
+               <p>The standard isn't "did someone read it?" It's: <strong>can the person submitting the deck explain how AI was used, and verify the factual claims?</strong></p>
+               <p>In practice this means: check any cited figures against source data, flag AI involvement in the document (good governance hygiene), and don't include analysis you can't explain if challenged by a board member.</p>
+               <p>The fix here is a structured (even lightweight) verification step in the workflow — not removing AI from the process.</p>`,
+        policy: `<strong>Policy:</strong> AI Code of Conduct — "Verify before you use: You must be able to explain how you used AI in your work. Do not use output you do not understand." Responsible AI Principles: "Verify output accuracy and accountability. Cross-check AI output, especially if results do not refer to credible sources."`
+      }
+    }
+  },
+
+]; // end questions
+
+
+/* ──────────────────────────────────────────────────────────────────
+   QUIZ STATE & LOGIC
+────────────────────────────────────────────────────────────────── */
+let currentQ  = 0;
+let score     = 0;
+let answered  = false;
+let userAnswers = []; // track per-question results
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  // small re-trigger for animation
+  void el.offsetWidth;
+}
+
+function startQuiz() {
+  currentQ = 0; score = 0; answered = false; userAnswers = [];
+  document.getElementById('progress-wrap').style.display = 'flex';
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  answered = false;
+
+  // tag
+  document.getElementById('q-tag-text').textContent = q.tag;
+
+  // scenario
+  document.getElementById('scenario-text').innerHTML = q.scenario;
+
+  // reset buttons
+  const btns = document.querySelectorAll('.ans-btn');
+  btns.forEach(b => {
+    b.className = 'ans-btn';
+    b.disabled  = false;
+  });
+
+  // hide feedback & next
+  const fp = document.getElementById('feedback-panel');
+  fp.classList.remove('show');
+  fp.style.display = 'none';
+  const bn = document.getElementById('btn-next');
+  bn.className = 'btn-next';
+
+  // update progress
+  updateProgress();
+
+  // update next button label
+  document.getElementById('btn-next-label').textContent =
+    currentQ < questions.length - 1 ? 'Next Question' : 'See My Results';
+}
+
+function updateProgress() {
+  const total = questions.length;
+  const idx   = currentQ + 1;
+  document.getElementById('progress-label').textContent = `Question ${idx} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${((idx - 1) / total) * 100}%`;
+  document.getElementById('progress-score').textContent = `${score} / ${currentQ} pts`;
+}
+
+function selectAnswer(choice) {
+  if (answered) return;
+  answered = true;
+
+  const q      = questions[currentQ];
+  const correct = q.correct;
+  const isRight = choice === correct;
+
+  if (isRight) score++;
+  userAnswers.push({ tag: q.tag, correct: isRight, chosen: choice, answer: correct });
+
+  // style buttons
+  const btns = document.querySelectorAll('.ans-btn');
+  btns.forEach(b => {
+    b.disabled = true;
+    const val = b.getAttribute('data-answer');
+    if (val === choice && !isRight)   b.classList.add('wrong');
+    if (val === correct)              b.classList.add('correct');
+    if (val !== choice && val !== correct) b.classList.add('dimmed');
+  });
+
+  // build feedback
+  const fb        = q.feedback[choice];
+  const typeClass = correct; // "valid"|"violation"|"grey"
+
+  const icons = { valid: '✅', violation: '🚫', grey: '⚠️' };
+  const labels = { valid: 'VALID', violation: 'VIOLATION', grey: 'GREY AREA' };
+
+  const fi = document.getElementById('feedback-inner');
+  fi.className = `feedback-inner ${typeClass}`;
+
+  const resultWord = isRight ? '✓ Correct' : '✗ Not quite';
+  const badge = `<span class="feedback-result-badge">${resultWord}</span>`;
+  document.getElementById('feedback-header').innerHTML =
+    `${icons[correct]} The answer is: <strong>${labels[correct]}</strong> &nbsp;${badge}`;
+
+  document.getElementById('feedback-body').innerHTML =
+    fb.body + `<div class="feedback-policy">${fb.policy}</div>`;
+
+  // show feedback
+  const fp = document.getElementById('feedback-panel');
+  fp.style.display = 'block';
+  // force reflow then add class
+  void fp.offsetWidth;
+  fp.classList.add('show');
+
+  // show next button
+  document.getElementById('btn-next').classList.add('show');
+
+  // scroll feedback into view smoothly
+  setTimeout(() => {
+    fp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showResults();
+  } else {
+    // animate out current content then render
+    const qBody = document.querySelector('.q-body');
+    qBody.style.opacity = '0';
+    qBody.style.transform = 'translateY(-8px)';
+    qBody.style.transition = 'opacity .2s,transform .2s';
+    setTimeout(() => {
+      renderQuestion();
+      qBody.style.transition = 'opacity .3s,transform .3s';
+      qBody.style.opacity = '1';
+      qBody.style.transform = 'translateY(0)';
+      document.querySelector('.q-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 220);
+  }
+}
+
+function showResults() {
+  document.getElementById('progress-wrap').style.display = 'none';
+  showScreen('screen-results');
+
+  // Score ring animation
+  const total   = questions.length;
+  const pct     = score / total;
+  const circ    = 2 * Math.PI * 50; // r=50
+  const ring    = document.getElementById('ring-fill');
+
+  document.getElementById('score-display').innerHTML = `${score}<span>/${total}</span>`;
+
+  setTimeout(() => {
+    ring.style.strokeDasharray = `${pct * circ} ${circ}`;
+  }, 200);
+
+  // Headline
+  const headlines = [
+    [7, "Outstanding! 🎉", "Perfect score — you know the policy inside out."],
+    [6, "Excellent! 👏",   "Strong compliance awareness across all key areas."],
+    [5, "Good work! 🙌",   "Solid foundation — a couple of areas worth revisiting."],
+    [3, "Getting there 📖","Review the areas below and revisit the policy docs."],
+    [0, "Keep learning 📚","Every expert started here — check the policy references below."],
+  ];
+  let hl = headlines[headlines.length - 1];
+  for (const [min, h, s] of headlines) { if (score >= min) { hl = [min, h, s]; break; } }
+  document.getElementById('results-headline').textContent = hl[1];
+  document.getElementById('results-sub').textContent = `${score} out of ${total} correct — ${hl[2]}`;
+
+  // Review list
+  const icons   = { valid: '✅', violation: '🚫', grey: '⚠️' };
+  const verdicts = { valid: 'Valid', violation: 'Violation', grey: 'Grey Area' };
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  userAnswers.forEach((a, i) => {
+    const shortTag = questions[i].tag.split(' — ')[1] || questions[i].tag;
+    const div = document.createElement('div');
+    div.className = `review-item ${a.correct ? 'correct-item' : 'wrong-item'}`;
+    div.innerHTML = `
+      <div class="review-status ${a.correct ? 'ok' : 'no'}">${a.correct ? '✓' : '✗'}</div>
+      <div>
+        <div class="review-item-label">Q${i+1}: ${shortTag}</div>
+        <div class="review-item-verdict">
+          ${a.correct
+            ? `Correct — ${icons[a.answer]} ${verdicts[a.answer]}`
+            : `You chose ${icons[a.chosen]} ${verdicts[a.chosen]} · Answer was ${icons[a.answer]} ${verdicts[a.answer]}`
+          }
+        </div>
+      </div>`;
+    list.appendChild(div);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  document.getElementById('progress-wrap').style.display = 'flex';
+  // reset ring
+  document.getElementById('ring-fill').style.strokeDasharray = '0 314';
+  startQuiz();
+}
+</script>
+</body>
+</html>
